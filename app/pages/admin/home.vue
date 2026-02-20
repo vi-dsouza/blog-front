@@ -1,7 +1,8 @@
 <template>
-    <div>
+    <v-app>
         <MenuLateral />
-    </div>
+
+    </v-app>
 </template>
 
 <script setup>
