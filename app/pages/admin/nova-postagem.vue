@@ -2,7 +2,7 @@
   <v-app>
     <MenuLateral />
 
-    <v-main>
+    <v-main class="main-scroll">
       <v-container fluid class="pa-4 pa-sm-8">
         <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
           Nova Postagem
@@ -94,13 +94,31 @@ const limparFoto = () => {
 }
 </script>
 
-<style scoped>
-.hover-effect {
-  transition: 0.3s;
-  cursor: pointer;
-}
-.hover-effect:hover {
-  background-color: #f3efff !important;
-  border-color: #7B5CFF !important;
-}
+<style>
+/* Faz a aplicação ocupar 100% da tela */
+    html, body, #__nuxt, #app {
+    height: 100%;
+    margin: 0;
+    }
+
+    /* Trava o layout para não rolar tudo */
+    .v-application {
+    height: 100vh;
+    overflow: hidden;
+    }
+
+    /* Apenas o conteúdo principal rola */
+    .main-scroll {
+    height: 100vh;
+    overflow-y: auto;
+    }
+
+  .hover-effect {
+    transition: 0.3s;
+    cursor: pointer;
+  }
+  .hover-effect:hover {
+    background-color: #f3efff !important;
+    border-color: #7B5CFF !important;
+  }
 </style>

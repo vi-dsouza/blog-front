@@ -5,6 +5,7 @@
     location="left"
     color="#7B5CFF"
     theme="dark"
+    class="no-scroll-drawer"
   >
     <template v-slot:prepend>
       <v-list-item lines="two" subtitle="Logged in" title="Vitória Stéfane">
@@ -17,9 +18,11 @@
     <v-divider></v-divider>
 
     <v-list density="default" nav>
-      <v-list-item prepend-icon="mdi-file-document-outline" title="Nova Postagem" value="home"></v-list-item>
-      <v-list-item prepend-icon="mdi-file-document" title="Postagens" value="account"></v-list-item>
-      <v-list-item prepend-icon="mdi-chart-line" title="Dashboard" value="users"></v-list-item>
+      <v-list-item prepend-icon="mdi-file-document-outline" title="Nova Postagem" to="/admin/nova-postagem"></v-list-item>
+      <v-list-item prepend-icon="mdi-file-document" title="Postagens" to="/admin/postagens"></v-list-item>
+      <v-list-item prepend-icon="mdi-chart-line" title="Dashboard" to="/admin/dashboard"></v-list-item>
+      <v-list-item prepend-icon="mdi-cog" title="Configurações Gerais" to="/admin/configuracoes-gerais"></v-list-item>
+      <v-list-item prepend-icon="mdi-account-circle" title="Usuários" to="/admin/usuarios"></v-list-item>
     </v-list>
 
     <template v-slot:append>
@@ -44,11 +47,15 @@ const drawer = ref(true)
 </script>
 
 <style scoped>
-.btn-sair {
-  height: 45px;
-  border-radius: 12px;
-  color: white;
-  font-weight: 600;
-  background-color: #212121;
-}
+  .btn-sair {
+    height: 45px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    background-color: #212121;
+  }
+
+  .no-scroll-drawer {
+    overflow: hidden !important;
+  }
 </style>

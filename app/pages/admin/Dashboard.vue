@@ -2,7 +2,7 @@
   <v-app>
     <MenuLateral />
 
-    <v-main>
+    <v-main class="main-scroll">
       <v-container fluid class="pa-4 pa-sm-8">
         <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-6">
           Visão Geral
