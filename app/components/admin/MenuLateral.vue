@@ -22,7 +22,7 @@
       <v-list-item prepend-icon="mdi-file-document" title="Postagens" to="/admin/postagens"></v-list-item>
       <v-list-item prepend-icon="mdi-chart-line" title="Dashboard" to="/admin/dashboard"></v-list-item>
       <v-list-item prepend-icon="mdi-cog" title="Configurações Gerais" to="/admin/configuracoes-gerais"></v-list-item>
-      <v-list-item prepend-icon="mdi-account-circle" title="Usuários" to="/admin/usuarios"></v-list-item>
+      <v-list-item prepend-icon="mdi-account-circle" title="Administradores" to="/admin/administradores"></v-list-item>
     </v-list>
 
     <template v-slot:append>
