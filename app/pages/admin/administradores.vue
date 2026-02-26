@@ -72,7 +72,7 @@
 
                       <v-file-input
                         ref="fileInput"
-                        v-model="foto"
+                        v-model="fotoInput"
                         accept="image/*"
                         class="d-none"
                         @update:modelValue="gerarPreview"
@@ -84,6 +84,7 @@
                   <v-col cols="12" md="8">
                     <v-text-field
                       label="Nome"
+                      v-model="form.nome"
                       variant="outlined"
                       density="comfortable"
                       class="mb-4"
@@ -92,6 +93,7 @@
 
                     <v-text-field
                       label="E-mail"
+                      v-model="form.email"
                       variant="outlined"
                       density="comfortable"
                       class="mb-4"
@@ -100,6 +102,7 @@
 
                     <v-text-field
                       label="Senha"
+                      v-model="form.senha"
                       type="password"
                       variant="outlined"
                       density="comfortable"
@@ -118,7 +121,7 @@
                     Cancelar
                   </v-btn>
 
-                  <v-btn color="#7B5CFF" theme="dark" elevation="2">
+                  <v-btn color="#7B5CFF" theme="dark" elevation="2" @click="handleUpload">
                     Salvar
                   </v-btn>
                 </div>
@@ -174,6 +177,43 @@
 import { ref } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue'
 import ModalCadastroUsuario from '~/components/admin/ModalCadastroUsuario.vue'
+import { useAdminStore } from '~/stores/adminStore'
+import { useAlertStore } from "~/stores/alert";
+
+const alertStore = useAlertStore();
+const adminStore = useAdminStore()
+const fotoInput = ref<File | null>(null)
+
+const form = ref({
+  nome: '',
+  email: '',
+  senha: ''
+})
+
+const handleUpload = async () => {
+  try {
+    // envia dados
+    await adminStore.registrarAdmin({
+      ...form.value,
+      foto: fotoInput.value
+    });
+
+    // alerta de sucesso
+    alertStore.showSuccess('Cadastro realizado com sucesso');
+
+    // fecha o modal
+    cadastroAdmin.value = false;
+
+    // limpa formulário
+    form.value = { nome: '', email: '', senha: '' };
+    fotoInput.value = null;
+    urlPreview.value = null;
+
+  } catch (e) {
+    console.error('Erro ao cadastrar:', e);
+    alertStore.showError('Falha no cadastro');
+  }
+}
 
 const postsRecentes = [
   { id: 1, foto: 'https://i.pravatar.cc/100?img=1', nome: 'Vitória', email: 'vitoriasteffane5@gmail.com', perfil: 'Administrador' },
@@ -194,7 +234,7 @@ function gerarPreview(file: File | File[] | null) {
 }
 
 function limparFoto() {
-  foto.value = null
+  fotoInput.value = null
   urlPreview.value = null
 }
 </script>

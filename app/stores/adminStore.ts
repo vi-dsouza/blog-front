@@ -1,55 +1,43 @@
 import { defineStore } from "pinia"
 import { ref } from 'vue'
+import axios from 'axios'
 
-interface Admin {
-    id: number
-    nome: string
-    email: string
-    senha: string
-    foto: string
+interface AdminRegister {
+    nome: string;
+    email: string;
+    senha?: string;
+    foto: File | null;
 }
 
-type NovoAdmin = Omit<Admin, 'id'>
-
 export const useAdminStore = defineStore('admin', () => {
-    const admins = ref<Admin[]>([])
-    const isLoading = ref(false)
-    const error = ref<string | null>(null)
+    const loading = ref(false)
+    const error = ref<string | null>(null);
 
-    async function cadastrarAdmin(dados: NovoAdmin) {
-        isLoading.value = true
+    async function registrarAdmin(payload: AdminRegister) {
+        loading.value = true
         error.value = null
 
+        const formData = new FormData()
+        formData.append('nome', payload.nome)
+        formData.append('email', payload.email)
+
+        if (payload.senha) formData.append('senha', payload.senha)
+        if (payload.foto) formData.append('foto', payload.foto)
+
         try {
-            const response = await fetch('http://localhost:5000/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dados)
-            })
-
-            if (!response.ok) {
-                throw new Error('Erro ao cadastrar administrador')
-            }
-
-            const novoAdminCriado: Admin = await response.json()
-            admins.value.push(novoAdminCriado)
-
-            return novoAdminCriado
+            // Removido o header manual para o Axios configurar o boundary automaticamente
+            const response = await axios.post('http://localhost:5000/auth/register', formData);
+            return response.data
         } catch (err: any) {
-            error.value = err.message
+            // Correção do erro de digitação: .response
+            const mensagemErro = err.response?.data?.message || 'Erro ao cadastrar administrador!';
+            error.value = mensagemErro;
+            console.error("Erro na API:", err.response?.data); // Para você ver o log real no console
             throw err
         } finally {
-            isLoading.value = false
+            loading.value = false
         }
-    } // <-- A função cadastrarAdmin termina aqui
-
-    // O return da Store deve ficar aqui, acessível por todo o useAdminStore
-    return {
-        admins,
-        isLoading,
-        error,
-        cadastrarAdmin
     }
+
+    return { registrarAdmin, loading, error }
 })
