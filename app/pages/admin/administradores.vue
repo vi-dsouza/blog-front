@@ -108,8 +108,14 @@
                       density="comfortable"
                       prepend-inner-icon="mdi-lock"
                     />
+                    <v-switch 
+                      label="Administrador"
+                      v-model="form.is_admin"
+                      color="success"
+                    >
+                     
+                    </v-switch>
                   </v-col>
-
                 </v-row>
 
                 <!-- DIVISOR -->
@@ -130,41 +136,78 @@
 
             </v-card-title>
 
-            <v-table density="compact">
-              <thead>
-                <tr>
-                  <th class="text-left">Foto</th>
-                  <th class="text-left">Nome</th>
-                  <th class="text-left">E-mail</th>
-                  <th class="text-left">Perfil</th>
-                  <th class="text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in postsRecentes" :key="item.id">
-                  <td>
-                    <v-avatar size="32">
-                      <v-img v-if="item.foto" :src="item.foto" cover />
-                      <v-icon v-else icon="mdi-account-circle" />
-                    </v-avatar>
-                  </td>
-                  <td>{{ item.nome }}</td>
-                  <td>{{ item.email }}</td>
-                  <td>
-                    <v-chip
-                      size="x-small"
-                      :color="item.perfil === 'Administrador' ? 'success' : 'warning'"
-                    >
-                      {{ item.perfil }}
-                    </v-chip>
-                  </td>
-                  <td class="text-right">
-                    <v-btn icon="mdi-pencil" variant="text" size="small" color="blue" />
-                    <v-btn icon="mdi-delete" variant="text" size="small" color="red" />
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
+              <v-table density="compact">
+                <thead>
+                  <tr>
+                    <th class="text-left">Foto</th>
+                    <th class="text-left">Nome</th>
+                    <th class="text-left">E-mail</th>
+                    <th class="text-left">Perfil</th>
+                    <th class="text-right">Ações</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr v-for="item in adminStore.admin" :key="item.id">
+                    
+                    <!-- FOTO -->
+                    <td>
+                      <v-avatar size="32">
+                        <v-img v-if="item.foto_url" :src="item.foto_url" cover />
+                        <v-icon v-else icon="mdi-account-circle" />
+                      </v-avatar>
+                    </td>
+
+                    <!-- NOME -->
+                    <td>{{ item.nome }}</td>
+
+                    <!-- EMAIL -->
+                    <td>{{ item.email }}</td>
+
+                    <!-- PERFIL -->
+                    <td>
+                      <v-chip
+                        size="x-small"
+                        :color="item.is_admin ? 'success' : 'warning'"
+                      >
+                        {{ item.is_admin ? 'Administrador' : 'Usuário' }}
+                      </v-chip>
+                    </td>
+
+                    <!-- AÇÕES -->
+                    <td class="text-right">
+                      <v-btn
+                        icon="mdi-pencil"
+                        variant="text"
+                        size="small"
+                        color="blue"
+                      />
+                      <v-btn
+                        icon="mdi-delete"
+                        variant="text"
+                        size="small"
+                        color="red"
+                        @click="deletar(item.id)"
+                      />
+                    </td>
+
+                  </tr>
+
+                  <!-- Caso não tenha dados -->
+                  <tr v-if="!adminStore.loading && adminStore.admin.length === 0">
+                    <td colspan="5" class="text-center">
+                      Nenhum administrador encontrado.
+                    </td>
+                  </tr>
+
+                  <!-- Loading -->
+                  <tr v-if="adminStore.loading">
+                    <td colspan="5" class="text-center">
+                      Carregando...
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
           </v-card>
         </v-col>
 
@@ -174,20 +217,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue'
 import ModalCadastroUsuario from '~/components/admin/ModalCadastroUsuario.vue'
 import { useAdminStore } from '~/stores/adminStore'
-import { useAlertStore } from "~/stores/alert";
+import { useAlertStore } from "~/stores/alert"
 
-const alertStore = useAlertStore();
+const alertStore = useAlertStore()
 const adminStore = useAdminStore()
 const fotoInput = ref<File | null>(null)
 
 const form = ref({
   nome: '',
   email: '',
-  senha: ''
+  senha: '',
+  is_admin: false
 })
 
 const handleUpload = async () => {
@@ -198,6 +242,8 @@ const handleUpload = async () => {
       foto: fotoInput.value
     });
 
+    await adminStore.busca_admins()
+
     // alerta de sucesso
     alertStore.showSuccess('Cadastro realizado com sucesso');
 
@@ -205,7 +251,7 @@ const handleUpload = async () => {
     cadastroAdmin.value = false;
 
     // limpa formulário
-    form.value = { nome: '', email: '', senha: '' };
+    form.value = { nome: '', email: '', senha: '', is_admin: false };
     fotoInput.value = null;
     urlPreview.value = null;
 
@@ -215,11 +261,11 @@ const handleUpload = async () => {
   }
 }
 
-const postsRecentes = [
-  { id: 1, foto: 'https://i.pravatar.cc/100?img=1', nome: 'Vitória', email: 'vitoriasteffane5@gmail.com', perfil: 'Administrador' },
-  { id: 2, foto: 'https://i.pravatar.cc/100?img=2', nome: 'Vitória', email: 'vitoriasteffane5@gmail.com', perfil: 'Administrador' },
-  { id: 3, foto: 'https://i.pravatar.cc/100?img=3', nome: 'Vitória', email: 'vitoriasteffane5@gmail.com', perfil: 'Administrador' },
-]
+const deletar = async (id: number) => {
+  if (confirm("Tem certeza que deseja deletar?")) {
+    await adminStore.deletarAdmin(id)
+  }
+}
 
 const cadastroAdmin = ref(false)
 
@@ -237,6 +283,12 @@ function limparFoto() {
   fotoInput.value = null
   urlPreview.value = null
 }
+
+onMounted(() => {
+  adminStore.busca_admins()
+  console.log(adminStore.admin)
+})
+
 </script>
 
 <style>
