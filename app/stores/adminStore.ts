@@ -72,5 +72,39 @@ export const useAdminStore = defineStore('admin', () => {
         }
     }
 
-    return { registrarAdmin, busca_admins, deletarAdmin, admin, loading, error }
+    async function atualizarAdmin(id: number, payload: AdminRegister) {
+        loading.value = true;
+        error.value = null;
+
+        try {
+            const formData = new FormData();
+            
+            // Adicionamos ao FormData apenas o que foi passado no payload
+            if (payload.nome) formData.append('nome', payload.nome);
+            if (payload.email) formData.append('email', payload.email);
+            if (payload.is_admin !== undefined) {
+                formData.append('is_admin', String(payload.is_admin));
+            }
+            if (payload.senha) {
+                formData.append('senha', payload.senha);
+            }
+            if (payload.foto) {
+                formData.append('foto', payload.foto);
+            }
+
+            const response = await axios.put(`http://localhost:5000/auth/admin/edit/${id}`, formData);
+
+            // Atualiza a lista local para refletir a mudança sem precisar recarregar a página
+            await busca_admins(); 
+            
+            return response.data;
+        } catch (err: any) {
+            error.value = err.response?.data?.error || "Erro ao atualizar administrador";
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    return { registrarAdmin, busca_admins, deletarAdmin, atualizarAdmin, admin, loading, error }
 })

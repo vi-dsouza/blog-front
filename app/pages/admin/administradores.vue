@@ -12,7 +12,7 @@
           <v-card border flat class="rounded-lg pa-4">
             <v-card-title class="px-0 d-flex justify-space-between align-center">
               Administradores do Blog
-              <v-btn @click="cadastroAdmin = true" color="#7B5CFF" theme="dark" size="small">
+              <v-btn @click="abrirModalCadastro" color="#7B5CFF" theme="dark" size="small">
                 Cadastrar
               </v-btn>
 
@@ -22,12 +22,15 @@
                 <!-- HEADER -->
                 <div class="d-flex justify-space-between align-center mb-6">
                   <div>
-                    <h2 class="text-h5 font-weight-bold">Cadastrar Administrador</h2>
+                    <h2 class="text-h5 font-weight-bold">
+                      {{ idSelecionado ? 'Editar Administrador' : 'Cadastrar Administrador' }}
+                    </h2>
+                    
                     <p class="text-caption text-grey">
-                      Preencha as informações abaixo para criar um novo usuário
+                      {{ idSelecionado ? 'Altere os dados do administrador' : 'Preencha as informações para criar um novo usuário' }}
                     </p>
                   </div>
-                  <v-btn icon="mdi-close" variant="text" @click="cadastroAdmin = false" />
+                  <v-btn icon="mdi-close" variant="text" @click="fecharModal" />
                 </div>
 
                 <!-- CONTEÚDO -->
@@ -127,7 +130,7 @@
                     Cancelar
                   </v-btn>
 
-                  <v-btn color="#7B5CFF" theme="dark" elevation="2" @click="handleUpload">
+                  <v-btn color="#7B5CFF" theme="dark" elevation="2" @click="handleSalvar">
                     Salvar
                   </v-btn>
                 </div>
@@ -181,6 +184,7 @@
                         variant="text"
                         size="small"
                         color="blue"
+                        @click="abrirEdicao(item)"
                       />
                       <v-btn
                         icon="mdi-delete"
@@ -226,6 +230,7 @@ import { useAlertStore } from "~/stores/alert"
 const alertStore = useAlertStore()
 const adminStore = useAdminStore()
 const fotoInput = ref<File | null>(null)
+const idSelecionado = ref<number | null>(null)
 
 const form = ref({
   nome: '',
@@ -234,32 +239,49 @@ const form = ref({
   is_admin: false
 })
 
-const handleUpload = async () => {
+const handleSalvar = async () => {
   try {
-    // envia dados
-    await adminStore.registrarAdmin({
-      ...form.value,
-      foto: fotoInput.value
-    });
+    const dados = { ...form.value, foto: fotoInput.value };
 
-    await adminStore.busca_admins()
+    if (idSelecionado.value) {
+      await adminStore.atualizarAdmin(idSelecionado.value, dados);
+      alertStore.showSuccess('Atualizado com sucesso');
+    } else {
+      await adminStore.registrarAdmin(dados);
+      alertStore.showSuccess('Cadastrado com sucesso');
+    }
 
-    // alerta de sucesso
-    alertStore.showSuccess('Cadastro realizado com sucesso');
-
-    // fecha o modal
-    cadastroAdmin.value = false;
-
-    // limpa formulário
-    form.value = { nome: '', email: '', senha: '', is_admin: false };
-    fotoInput.value = null;
-    urlPreview.value = null;
-
+    await adminStore.busca_admins();
+    fecharModal();
   } catch (e) {
-    console.error('Erro ao cadastrar:', e);
-    alertStore.showError('Falha no cadastro');
+    alertStore.showError('Erro na operação');
   }
 }
+
+const abrirModalCadastro = () => {
+  idSelecionado.value = null;
+  resetForm();
+  cadastroAdmin.value = true;
+}
+
+const abrirEdicao = (item: any) => {
+  idSelecionado.value = item.id;
+  form.value = {
+    nome: item.nome,
+    email: item.email,
+    senha: '', 
+    is_admin: !!item.is_admin
+  };
+  urlPreview.value = item.foto_url || null;
+  cadastroAdmin.value = true;
+}
+
+const fecharModal = () => {
+  cadastroAdmin.value = false;
+  idSelecionado.value = null;
+  resetForm();
+}
+
 
 const deletar = async (id: number) => {
   if (confirm("Tem certeza que deseja deletar?")) {
@@ -268,8 +290,6 @@ const deletar = async (id: number) => {
 }
 
 const cadastroAdmin = ref(false)
-
-// UPLOAD
 const foto = ref<File | null>(null)
 const urlPreview = ref<string | null>(null)
 
@@ -278,6 +298,18 @@ function gerarPreview(file: File | File[] | null) {
   const arquivo = Array.isArray(file) ? file[0] : file
   urlPreview.value = URL.createObjectURL(arquivo)
 }
+
+const resetForm = () => {
+  form.value = { 
+    nome: '', 
+    email: '', 
+    senha: '', 
+    is_admin: false 
+  };
+  
+  fotoInput.value = null;
+  urlPreview.value = null;
+};
 
 function limparFoto() {
   fotoInput.value = null
@@ -292,7 +324,7 @@ onMounted(() => {
 </script>
 
 <style>
-/* Layout principal */
+
 html, body, #__nuxt, #app {
   height: 100%;
   margin: 0;
@@ -306,7 +338,6 @@ html, body, #__nuxt, #app {
   overflow-y: auto;
 }
 
-/* Upload Box */
 .upload-box {
   transition: all 0.3s ease;
   cursor: pointer;
