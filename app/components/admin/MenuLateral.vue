@@ -27,7 +27,9 @@
 
     <template v-slot:append>
       <div class="pa-2">
-        <v-btn class="btn-sair" block>Sair</v-btn>
+        <v-btn class="btn-sair" block @click="logout">
+          Sair
+        </v-btn>
       </div>
     </template>
   </v-navigation-drawer>
@@ -44,6 +46,18 @@
 import { ref } from 'vue'
 // Definimos o estado do menu aqui
 const drawer = ref(true)
+
+const logout = () => {
+  const logout = () => {
+  const token = useCookie<string | null>('auth_token')
+  const user = useCookie('user')
+
+  token.value = null
+  user.value = null
+
+  navigateTo('/admin/login')
+}
+}
 </script>
 
 <style scoped>

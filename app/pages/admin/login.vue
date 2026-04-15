@@ -16,7 +16,7 @@ async function handleLogin() {
   errorMsg.value = ""
 
   try {
-    const data = await $fetch('http://localhost:5000/login', {
+    const data = await $fetch('http://localhost:5000/auth/login', {
       method: 'POST',
       body: { 
         email: email.value, 
@@ -29,8 +29,8 @@ async function handleLogin() {
       const token = useCookie('auth_token', { maxAge: 7200, sameSite: 'lax' })
       token.value = data.token
       
-      // 3. Verifique se a rota '/dashboard' realmente existe no seu Nuxt
-      await navigateTo('/dashboard') 
+      // 3. Verifique se a rota '/admin/Dashboard' realmente existe no seu Nuxt
+      await navigateTo('/admin/Dashboard')
     }
     
   } catch (err) {
