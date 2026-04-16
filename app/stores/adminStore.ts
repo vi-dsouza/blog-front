@@ -10,6 +10,16 @@ interface AdminRegister {
     foto: File | null;
 }
 
+// Função utilitária para pegar o token e configurar os headers
+const getHeaders = () => {
+    const token = useCookie('auth_token').value
+    return {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+}
+
 export const useAdminStore = defineStore('admin', () => {
     const loading = ref(false)
     const error = ref<string | null>(null);
@@ -29,7 +39,7 @@ export const useAdminStore = defineStore('admin', () => {
 
         try {
             // Removido o header manual para o Axios configurar o boundary automaticamente
-            const response = await axios.post('http://localhost:5000/auth/register', formData);
+            const response = await axios.post('http://localhost:5000/auth/register', formData, getHeaders());
             return response.data
         } catch (err: any) {
             // Correção do erro de digitação: .response
@@ -47,7 +57,7 @@ export const useAdminStore = defineStore('admin', () => {
         error.value = null
 
         try {
-            const response = await axios.get('http://localhost:5000/auth/admins');
+            const response = await axios.get('http://localhost:5000/auth/admins', getHeaders());
             admin.value = response.data
         } catch (err: any) {
             error.value = err.response?.data?.message || 'Erro ao buscar admins!'
@@ -61,7 +71,7 @@ export const useAdminStore = defineStore('admin', () => {
         error.value = null
 
         try {
-            await axios.delete(`http://localhost:5000/auth/admin/del/${id}`)
+            await axios.delete(`http://localhost:5000/auth/admin/del/${id}`, getHeaders())
             
             admin.value = admin.value.filter(a => a.id !== id)
         } catch (err: any) {
@@ -92,7 +102,7 @@ export const useAdminStore = defineStore('admin', () => {
                 formData.append('foto', payload.foto);
             }
 
-            const response = await axios.put(`http://localhost:5000/auth/admin/edit/${id}`, formData);
+            const response = await axios.put(`http://localhost:5000/auth/admin/edit/${id}`, formData, getHeaders());
 
             // Atualiza a lista local para refletir a mudança sem precisar recarregar a página
             await busca_admins(); 

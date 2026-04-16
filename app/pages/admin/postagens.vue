@@ -79,6 +79,10 @@
 import { ref } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue'
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const search = ref('')
 
 const headers = [

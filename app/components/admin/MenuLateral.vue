@@ -7,12 +7,19 @@
     theme="dark"
     class="no-scroll-drawer"
   >
-    <template v-slot:prepend>
-      <v-list-item lines="two" subtitle="Logged in" title="Vitória Stéfane">
-        <template v-slot:prepend>
-          <v-avatar icon="$vuetify" image="smirk.png"></v-avatar>
-        </template>
-      </v-list-item>
+      <template v-slot:prepend>
+        <v-list-item 
+          lines="two" 
+          :subtitle="isLoggedIn ? 'Conectado' : 'Desconectado'" 
+          :title="userName"
+        >
+          <template v-slot:prepend>
+            <v-avatar 
+              icon="mdi-account" 
+              :image="userPhoto"
+            ></v-avatar>
+          </template>
+        </v-list-item>
     </template>
 
     <v-divider></v-divider>
@@ -43,20 +50,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-// Definimos o estado do menu aqui
+import { ref, computed } from 'vue'
+
 const drawer = ref(true)
 
-const logout = () => {
-  const logout = () => {
-  const token = useCookie<string | null>('auth_token')
+// 1. Pegamos os cookies
+const token = useCookie('auth_token')
+const userCookie = useCookie('user') // Aqui assumimos que você salvou um objeto { nome: '...', ... }
+
+// 2. Criamos propriedades computadas para reagir a mudanças
+const isLoggedIn = computed(() => !!token.value)
+const userName = computed(() => userCookie.value?.nome || 'Usuário')
+const userPhoto = computed(() => userCookie.value?.foto_url || 'smirk.png')
+
+const logout = async () => {
+  const token = useCookie('auth_token')
   const user = useCookie('user')
 
   token.value = null
   user.value = null
 
-  navigateTo('/admin/login')
-}
+  await navigateTo('/admin/login')
 }
 </script>
 

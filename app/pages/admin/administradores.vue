@@ -227,6 +227,10 @@ import ModalCadastroUsuario from '~/components/admin/ModalCadastroUsuario.vue'
 import { useAdminStore } from '~/stores/adminStore'
 import { useAlertStore } from "~/stores/alert"
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const alertStore = useAlertStore()
 const adminStore = useAdminStore()
 const fotoInput = ref<File | null>(null)

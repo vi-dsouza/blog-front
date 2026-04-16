@@ -91,6 +91,10 @@
 <script setup lang="ts">
 import MenuLateral from '~/components/admin/MenuLateral.vue';
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const stats = [
   { title: 'Views Total', value: '24.8k', icon: 'mdi-eye', color: '#7B5CFF' },
   { title: 'Postagens', value: '142', icon: 'mdi-post', color: '#7B5CFF' },

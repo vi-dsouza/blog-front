@@ -1,4 +1,5 @@
 <script setup>
+
 // Reatividade para capturar os dados
 const email = ref('')
 const password = ref('')
@@ -18,6 +19,10 @@ async function handleLogin() {
   try {
     const data = await $fetch('http://localhost:5000/auth/login', {
       method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
       body: { 
         email: email.value, 
         senha: password.value  // 'senha' é como o Python espera, 'password.value' é sua ref do Vue
@@ -26,16 +31,26 @@ async function handleLogin() {
 
     // 2. Verificação de segurança: Só salva se o token vier na resposta
     if (data && data.token) {
+      // 1. Salva o token normalmente
       const token = useCookie('auth_token', { maxAge: 7200, sameSite: 'lax' })
       token.value = data.token
       
-      // 3. Verifique se a rota '/admin/Dashboard' realmente existe no seu Nuxt
-      await navigateTo('/admin/Dashboard')
+      // 2. SALVE ESTA PARTE NOVA: Criando o cookie com os dados do usuário
+      const user = useCookie('user', { maxAge: 7200, sameSite: 'lax' })
+      user.value = {
+        nome: data.user_nome,
+        foto_url: data.user_foto ? `http://localhost:5000/uploads/${data.user_foto}` : '/smirk.png'
+      }
+      
+      // 3. Redireciona
+      await navigateTo('/admin/dashboard')
     }
     
   } catch (err) {
     // Captura o erro vindo do Flask (401, 400, etc)
-    errorMsg.value = err.data?.error || "Falha na autenticação."
+    // errorMsg.value = err.data?.error || "Falha na autenticação."
+    console.error("Erro detalhado do servidor:", err.response?._data || err);
+    errorMsg.value = err.data?.error || "Falha na autenticação.";
   } finally {
     loading.value = false
   }

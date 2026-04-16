@@ -78,6 +78,10 @@
 import { ref } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue';
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const foto = ref<File | null>(null)
 const urlPreview = ref<string | null>(null)
 
