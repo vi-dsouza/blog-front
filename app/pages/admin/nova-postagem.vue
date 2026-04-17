@@ -10,18 +10,19 @@
 
         <v-row class="ms-6 me-6">
           <v-col cols="12" md="6">
-            <v-text-field clearable label="Título da Postagem" variant="outlined" density="compact"></v-text-field>
+            <v-text-field clearable v-model="titulo" label="Título da Postagem" variant="outlined" density="compact"></v-text-field>
           </v-col>
           <v-col cols="12" md="6">
-            <v-text-field label="Data da Postagem" type="date" variant="outlined" density="compact"></v-text-field>
+            <v-text-field v-model="data" label="Data da Postagem" type="date" variant="outlined" density="compact"></v-text-field>
           </v-col>
 
           <v-col cols="12" md="6" class="mt-n3">
-            <v-text-field clearable label="Autor" variant="outlined" density="compact"></v-text-field>
+            <v-text-field clearable v-model="autor" label="Autor" variant="outlined" density="compact"></v-text-field>
           </v-col>
           <v-col cols="12" md="6" class="mt-n3">
             <v-combobox
               clearable
+              v-model="hashtags"
               label="Hashtags"
               variant="outlined"
               density="compact"
@@ -48,13 +49,14 @@
                 </div>
               </v-img>
 
-              <v-file-input ref="fileInput" v-model="foto" accept="image/*" class="d-none" @change="gerarPreview"></v-file-input>
+              <v-file-input ref="fileInput" v-model="post" accept="image/*" class="d-none" @change="gerarPreview"></v-file-input>
             </v-sheet>
           </v-col>
 
           <v-col cols="12" md="8">
             <v-textarea
               clearable
+              v-model="conteudo"
               label="Conteúdo do Post"
               variant="outlined"
               auto-grow
@@ -65,8 +67,8 @@
           </v-col>
 
           <v-col cols="12" class="d-flex flex-column flex-sm-row justify-end ga-4 mt-4">
-            <v-btn variant="text" color="grey" class="order-last order-sm-first">Cancelar</v-btn>
-            <v-btn color="#7B5CFF" theme="dark" elevation="2" min-width="150">Publicar</v-btn>
+            <v-btn variant="text" color="grey" class="order-last order-sm-first" @click="cancelar">Cancelar</v-btn>
+            <v-btn color="#7B5CFF" theme="dark" elevation="2" min-width="150" @click="publicarPostagem">Publicar</v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -77,24 +79,79 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue';
+import { usePostagemStore } from '~/stores/postsStore';
+import { useAlertStore } from "~/stores/alert"
+// Importamos o roteador para redirecionar após publicar
+const router = useRouter()
 
 definePageMeta({
   middleware: 'auth'
 })
 
-const foto = ref<File | null>(null)
+// Inicializando Stores
+const postagemStore = usePostagemStore()
+const alertStore = useAlertStore()
+// Refs para os campos do formulário
+const titulo = ref('')
+const data = ref(new Date().toISOString().substr(0, 10)) // Inicia com a data de hoje
+const autor = ref('')
+const hashtags = ref<string[]>([]) // Array para o v-combobox
+const conteudo = ref('')
+const post = ref<File | null>(null)
 const urlPreview = ref<string | null>(null)
 
+// Lógica de Preview da Imagem
 const gerarPreview = (event: any) => {
   const file = event.target.files[0]
   if (file) {
+    post.value = file // Garante que o ref 'post' receba o arquivo
     urlPreview.value = URL.createObjectURL(file)
   }
 }
 
 const limparFoto = () => {
-  foto.value = null
+  post.value = null
   urlPreview.value = null
+}
+
+// FUNÇÃO PRINCIPAL: Publicar Postagem
+const publicarPostagem = async () => {
+  // Validação básica
+  if (!titulo.value || !conteudo.value || !autor.value) {
+    alertStore.showError("Por favor, preencha os campos obrigatórios (Título, Autor e Conteúdo).")
+    return
+  }
+
+  try {
+    // Montamos o payload seguindo a interface 'Postagens' da sua Store
+    // Transformamos o array de hashtags em uma string separada por vírgula para o banco
+    const payload = {
+      titulo: titulo.value,
+      data: data.value,
+      autor: autor.value,
+      hashtags: hashtags.value.join(', '), 
+      conteudo: conteudo.value,
+      post: post.value // O arquivo File
+    }
+
+    await postagemStore.criarPost(payload)
+    
+    alertStore.showSuccess("Postagem publicada com sucesso!")
+    
+    // Opcional: Redirecionar para a lista de posts ou limpar campos
+    router.push('/admin/dashboard') 
+
+  } catch (error: any) {
+    console.error("Erro ao publicar:", error)
+    alertStore.showError(postagemStore.error || "Ocorreu um erro ao publicar a postagem.")
+  }
+}
+
+// Função para cancelar (volta para a página anterior ou limpa)
+const cancelar = () => {
+  if (confirm("Deseja descartar as alterações?")) {
+    router.back()
+  }
 }
 </script>
 

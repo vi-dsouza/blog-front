@@ -12,6 +12,7 @@
           <v-col cols="12" md="6">
             <v-text-field v-model="nome_blog" clearable label="Nome do Blog" variant="outlined" density="compact"></v-text-field>
           </v-col>
+
           <v-col cols="12" md="6">
             <v-text-field v-model="data_atualizacao" label="Data da Atualização" type="date" variant="outlined" density="compact"></v-text-field>
           </v-col>
@@ -27,11 +28,21 @@
               variant="outlined"
               density="compact"
               multiple
-              chips
               clearable
-              closable-chips
               hide-selected
-            />
+            >
+              <template v-slot:chip="{ props, item }">
+                <v-chip
+                  v-bind="props"
+                  color="#7B5CFF"
+                  variant="flat"
+                  text-color="white"
+                  closable
+                >
+                  {{ item.title }}
+                </v-chip>
+              </template>
+            </v-combobox>
           </v-col>
 
           <v-col cols="12">
@@ -39,19 +50,27 @@
               border="dashed md"
               color="grey-lighten-4"
               min-height="250"
-              class="d-flex flex-column align-center justify-center position-relative rounded-lg cursor-pointer hover-effect"
-              @click="$refs.fileInput.click()"
+              class="d-flex flex-column align-center justify-center position-relative rounded-lg cursor-pointer hover-effect overflow-hidden"
+              @click="acionarInputArquivo"
             >
-              <v-icon size="40" color="#7B5CFF" class="mb-2">mdi-cloud-upload</v-icon>
-              <span class="text-subtitle-2 font-weight-bold text-center px-2">Clique para enviar o banner</span>
+              <template v-if="!urlPreview">
+                <v-icon size="40" color="#7B5CFF" class="mb-2">mdi-cloud-upload</v-icon>
+                <span class="text-subtitle-2 font-weight-bold text-center px-2">Clique para enviar o banner</span>
+              </template>
               
               <v-img v-if="urlPreview" :src="urlPreview" cover class="position-absolute rounded-lg w-100 h-100">
                 <div class="d-flex justify-end pa-2">
-                  <v-btn icon="mdi-close" size="x-small" color="red" @click.stop="limparFoto"></v-btn>
+                  <v-btn icon="mdi-close" size="x-small" color="red" elevation="2" @click.stop="limparFoto"></v-btn>
                 </div>
               </v-img>
 
-              <v-file-input ref="fileInput" v-model="foto" accept="image/*" class="d-none" @change="gerarPreview"></v-file-input>
+              <v-file-input 
+                ref="fileInput" 
+                v-model="foto" 
+                accept="image/*" 
+                class="d-none" 
+                @update:model-value="gerarPreview"
+              ></v-file-input>
             </v-sheet>
           </v-col>
 
@@ -69,7 +88,7 @@
           </v-col>
 
           <v-col cols="12" class="d-flex flex-column flex-sm-row justify-end ga-4">
-            <v-btn variant="text" color="grey" class="order-last order-sm-first">Cancelar</v-btn>
+            <v-btn variant="text" color="grey" class="order-last order-sm-first" @click="carregarDadosIniciais">Cancelar</v-btn>
             <v-btn 
               color="#7B5CFF" 
               theme="dark" 
@@ -88,18 +107,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue';
-import { useConfiguracaoStore } from '~/stores/configStore' // Verifique o caminho da sua store
-import { onMounted } from 'vue'
-
-definePageMeta({
-  middleware: 'auth'
-})
+import { useConfiguracaoStore } from '~/stores/configStore'
 
 const configStore = useConfiguracaoStore()
+const fileInput = ref<any>(null)
 
-// Refs para o formulário
+// Refs reativas
 const nome_blog = ref('')
 const data_atualizacao = ref('')
 const autor = ref('')
@@ -108,96 +123,78 @@ const descricao_blog = ref('')
 const foto = ref<File | null>(null)
 const urlPreview = ref<string | null>(null)
 
-const gerarPreview = (event: any) => {
-  const file = event.target.files[0]
+const acionarInputArquivo = () => {
+  if (fileInput.value) {
+    const el = fileInput.value.$el.querySelector('input')
+    if (el) el.click()
+  }
+}
+
+const gerarPreview = (arquivo: any) => {
+  const file = Array.isArray(arquivo) ? arquivo[0] : arquivo
   if (file) {
-    foto.value = file
-    urlPreview.value = URL.createObjectURL(file)
+    foto.value = file;
+    if (urlPreview.value?.startsWith('blob:')) URL.revokeObjectURL(urlPreview.value);
+    urlPreview.value = URL.createObjectURL(file);
   }
 }
 
 const limparFoto = () => {
+  if (urlPreview.value?.startsWith('blob:')) URL.revokeObjectURL(urlPreview.value);
   foto.value = null
   urlPreview.value = null
 }
 
 const handleSalvar = async () => {
-  // 1. Tratativa de campos vazios
-  // Verificamos se os campos obrigatórios estão preenchidos
-  if (!nome_blog.value || !autor.value || !data_atualizacao.value || !descricao_blog.value) {
-    alert('Por favor, preencha todos os campos obrigatórios!')
-    return // Interrompe a execução aqui
-  }
-
-  // Opcional: Validar se há pelo menos uma tag
-  if (tags_selecionadas.value.length === 0) {
-    alert('Adicione pelo menos uma tag ao blog!')
+  if (!nome_blog.value || !autor.value || !data_atualizacao.value) {
+    alert('Preencha os campos obrigatórios!')
     return
   }
 
   try {
+    // Criamos o objeto de carga (payload)
     await configStore.criarConfig({
       nome_blog: nome_blog.value,
       data_atualizacao: data_atualizacao.value,
       autor: autor.value,
       tags_do_blog: tags_selecionadas.value.join(','),
       descricao_blog: descricao_blog.value,
-      banner: foto.value // O banner costuma ser opcional, por isso não barramos acima
+      banner: foto.value // Se 'foto.value' for null, a Store não deve enviar esse campo ou enviar vazio
     })
     
-    alert('Configurações salvas com sucesso!')
+    alert('Configurações atualizadas com sucesso!')
+    await carregarDadosIniciais() // Recarrega para garantir sincronia com o banco
   } catch (e) {
-    // O erro já é registrado na configStore.error
-    alert(configStore.error || 'Erro ao salvar configurações.')
+    alert('Erro ao salvar configurações.')
   }
 }
 
-onMounted(async () => {
+const carregarDadosIniciais = async () => {
     const dados = await configStore.carregarConfig();
     
     if (dados) {
-        // Preenche os campos do formulário com o que veio do banco
         nome_blog.value = dados.nome_blog;
         autor.value = dados.autor;
         data_atualizacao.value = dados.data_atualizacao;
         descricao_blog.value = dados.descricao_blog;
-        
-        // Converte a string de tags "tag1,tag2" de volta para array ['tag1', 'tag2']
         tags_selecionadas.value = dados.tags_do_blog ? dados.tags_do_blog.split(',') : [];
 
-        // Mostra o preview da imagem que já está no servidor
         if (dados.banner_url) {
+            // URL ajustada para buscar na pasta raiz config_blog do servidor
             urlPreview.value = `http://localhost:5000/config_blog/${dados.banner_url}`;
+        } else {
+            urlPreview.value = null;
         }
     }
-})
+}
 
+onMounted(() => {
+  carregarDadosIniciais()
+})
 </script>
 
-<style>
-    /* Faz a aplicação ocupar 100% da tela */
-    html, body, #__nuxt, #app {
-    height: 100%;
-    margin: 0;
-    }
-
-    /* Trava o layout para não rolar tudo */
-    .v-application {
-    height: 100vh;
-    overflow: hidden;
-    }
-
-    /* Apenas o conteúdo principal rola */
-    .main-scroll {
-    height: 100vh;
-    overflow-y: auto;
-    }
-    .hover-effect {
-    transition: 0.3s;
-    cursor: pointer;
-    }
-    .hover-effect:hover {
-    background-color: #f3efff !important;
-    border-color: #7B5CFF !important;
-    }
+<style scoped>
+.main-scroll { height: 100vh; overflow-y: auto; }
+.hover-effect { transition: 0.3s; }
+.hover-effect:hover { background-color: #f3efff !important; border-color: #7B5CFF !important; }
 </style>

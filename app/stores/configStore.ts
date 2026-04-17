@@ -26,46 +26,53 @@ export const useConfiguracaoStore = defineStore('config', () => {
     const config = ref<any[]>([]);
 
     async function criarConfig(payload: ConfiguracaoBlog) {
-        loading.value = true
-        error.value = null
-
-        const formData = new FormData()
-
-        // 1. Tratamento de Data para satisfazer o TypeScript
-        let dataFinal: string;
-        if (payload.data_atualizacao instanceof Date) {
-            // O ?? '' garante que se o split falhar, teremos uma string vazia (evita o erro da imagem)
-            dataFinal = payload.data_atualizacao.toISOString().split('T')[0] ?? '';
-        } else {
-            dataFinal = payload.data_atualizacao || '';
-        }
-
-        // 2. Montagem do FormData (Nomes devem bater com o request.form do Flask)
-        formData.append('nome_blog', payload.nome_blog)
-        formData.append('data_atualizacao', dataFinal)
-        formData.append('autor', payload.autor)
-        formData.append('tags_do_blog', payload.tags_do_blog)
-        formData.append('descricao_blog', payload.descricao_blog)
-
-        // 3. Campo de imagem (Batendo com request.files.get("foto") do seu Flask)
-        if (payload.banner) {
-            formData.append('foto', payload.banner)
-        }
+        loading.value = true;
+        error.value = null;
 
         try {
+            const formData = new FormData();
+
+            // 1. Tratamento de Data
+            let dataFinal: string = '';
+
+            if (payload.data_atualizacao instanceof Date) {
+                // Adicionado "|| ''" aqui também para garantir que o TS não reclame do [0]
+                dataFinal = payload.data_atualizacao.toISOString().split('T')[0] || '';
+            } else if (typeof payload.data_atualizacao === 'string') {
+                // Garante que o resultado seja sempre string
+                dataFinal = payload.data_atualizacao.split('T')[0] || '';
+            }
+
+            // 2. Montagem do FormData com os textos
+            formData.append('nome_blog', payload.nome_blog);
+            formData.append('data_atualizacao', dataFinal);
+            formData.append('autor', payload.autor);
+            formData.append('tags_do_blog', payload.tags_do_blog);
+            formData.append('descricao_blog', payload.descricao_blog);
+
+            // 3. Tratamento do Banner
+            if (payload.banner instanceof File) {
+                formData.append('banner', payload.banner);
+            }
+
             const response = await axios.post(
                 'http://localhost:5000/blog/configuracao', 
                 formData, 
                 getHeaders()
             );
-            return response.data
+
+            return response.data;
+
         } catch (err: any) {
-            const mensagemErro = err.response?.data?.error || err.response?.data?.message || 'Erro ao salvar configuração!';
+            const mensagemErro = err.response?.data?.error || 
+                                err.response?.data?.message || 
+                                'Erro ao salvar configuração!';
+            
             error.value = mensagemErro;
             console.error("Erro na API: ", err.response?.data);
-            throw err
+            throw err;
         } finally {
-            loading.value = false
+            loading.value = false;
         }
     }
 
@@ -73,7 +80,7 @@ export const useConfiguracaoStore = defineStore('config', () => {
         loading.value = true;
         try {
             const response = await axios.get('http://localhost:5000/blog/configuracao', getHeaders());
-            return response.data; // Retorna o objeto com nome, autor, etc.
+            return response.data;
         } catch (err: any) {
             console.error("Erro ao carregar configurações:", err.response?.data);
             return null;
@@ -82,7 +89,6 @@ export const useConfiguracaoStore = defineStore('config', () => {
         }
     }
 
-    // Essencial: Retornar tudo para ser acessível nos componentes
     return { 
         criarConfig, 
         carregarConfig,
@@ -90,5 +96,4 @@ export const useConfiguracaoStore = defineStore('config', () => {
         error, 
         config 
     }
-
 })
