@@ -191,7 +191,7 @@
                         variant="text"
                         size="small"
                         color="red"
-                        @click="deletar(item.id)"
+                        @click="deletar(item)"
                       />
                     </td>
 
@@ -218,6 +218,50 @@
       </v-container>
     </v-main>
   </v-app>
+
+  <v-dialog v-model="modalDelete" max-width="450">
+    <v-card>
+
+      <!-- TOOLBAR ROXA -->
+      <v-toolbar flat color="#7B5CFF">
+        <v-toolbar-title class="text-white font-weight-bold">
+          Confirmar exclusão
+        </v-toolbar-title>
+
+        <v-spacer />
+
+        <v-btn
+          icon="mdi-close"
+          variant="text"
+          class="text-white"
+          @click="modalDelete = false"
+        />
+      </v-toolbar>
+
+      <!-- TEXTO -->
+      <v-card-text class="pt-4">
+        Tem certeza que deseja excluir o administrador
+        <strong>"{{ adminParaDeletar?.nome }}"</strong>?
+      </v-card-text>
+
+      <!-- AÇÕES -->
+      <v-card-actions class="justify-end pb-4 px-4">
+        <v-btn variant="text" color="grey" @click="modalDelete = false">
+          Cancelar
+        </v-btn>
+
+        <v-btn
+          color="red"
+          variant="flat"
+          class="text-white"
+          @click="deletarConfirmado"
+        >
+          Excluir
+        </v-btn>
+      </v-card-actions>
+
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -235,6 +279,9 @@ const alertStore = useAlertStore()
 const adminStore = useAdminStore()
 const fotoInput = ref<File | null>(null)
 const idSelecionado = ref<number | null>(null)
+
+const modalDelete = ref(false)
+const adminParaDeletar = ref<any>(null)
 
 const form = ref({
   nome: '',
@@ -287,10 +334,22 @@ const fecharModal = () => {
 }
 
 
-const deletar = async (id: number) => {
-  if (confirm("Tem certeza que deseja deletar?")) {
-    await adminStore.deletarAdmin(id)
-  }
+const deletar = (item: any) => {
+  adminParaDeletar.value = item
+  modalDelete.value = true
+}
+
+const deletarConfirmado = async () => {
+  if (!adminParaDeletar.value) return
+
+  await adminStore.deletarAdmin(adminParaDeletar.value.id)
+
+  modalDelete.value = false
+  adminParaDeletar.value = null
+
+  await adminStore.busca_admins()
+
+  alertStore.showSuccess("Administrador deletado com sucesso")
 }
 
 const cadastroAdmin = ref(false)

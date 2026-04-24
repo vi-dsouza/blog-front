@@ -34,7 +34,7 @@
               <v-avatar size="60" rounded="lg" class="my-2 border">
                 <v-img
                   v-if="item.post_url"
-                  :src="`http://localhost:5000/posts_image/${item.post_url}`"
+                  :src="item.post_url"
                   cover
                 />
                 <v-icon v-else icon="mdi-image-off" color="grey-lighten-1"></v-icon>
@@ -73,24 +73,47 @@
                 </v-col>
                 
                 <v-col cols="12" md="4">
-                  <v-hover v-slot="{ isHovering, props }">
-                    <v-card
-                      v-bind="props"
-                      border="dashed md"
-                      class="d-flex align-center justify-center cursor-pointer position-relative"
-                      height="200"
-                      @click="$refs.fileInput.click()"
+                  <v-sheet
+                    border="dashed md"
+                    color="grey-lighten-4"
+                    min-height="200"
+                    class="d-flex flex-column align-center justify-center position-relative rounded-lg cursor-pointer hover-effect overflow-hidden"
+                    @click="$refs.fileInput.click()"
+                  >
+                    <!-- SEM IMAGEM -->
+                    <template v-if="!(previewImagem || editItem.post_url)">
+                      <v-icon size="40" color="#7B5CFF" class="mb-2">mdi-cloud-upload</v-icon>
+                      <span class="text-subtitle-2 font-weight-bold text-center px-2">
+                        Clique para enviar a imagem
+                      </span>
+                    </template>
+                    
+                    <!-- COM IMAGEM -->
+                    <v-img 
+                      v-if="previewImagem || editItem.post_url"
+                      :src="previewImagem || editItem.post_url"
+                      cover
+                      class="position-absolute rounded-lg w-100 h-100"
                     >
-                      <v-img v-if="previewImagem || editItem.post_url" 
-                        :src="previewImagem || `http://localhost:5000/posts_image/${editItem.post_url}`" 
-                        cover class="w-100 h-100 rounded-lg" 
-                      />
-                      <v-overlay :model-value="isHovering" scrim="#7B5CFF" contained class="align-center justify-center">
-                        <v-icon color="white" size="48">mdi-camera-flip</v-icon>
-                      </v-overlay>
-                      <v-file-input ref="fileInput" class="d-none" accept="image/*" @change="tratarUploadFoto" />
-                    </v-card>
-                  </v-hover>
+                      <div class="d-flex justify-end pa-2">
+                        <v-btn 
+                          icon="mdi-close" 
+                          size="x-small" 
+                          color="red" 
+                          elevation="2" 
+                          @click.stop="limparImagem"
+                        />
+                      </div>
+                    </v-img>
+
+                    <!-- INPUT ORIGINAL (mantido) -->
+                    <v-file-input 
+                      ref="fileInput" 
+                      class="d-none" 
+                      accept="image/*" 
+                      @change="tratarUploadFoto" 
+                    />
+                  </v-sheet>
                 </v-col>
 
                 <v-col cols="12" md="8">
@@ -101,10 +124,54 @@
 
             <v-card-actions class="justify-end px-6 pb-4">
               <v-btn variant="text" color="grey" @click="modalEdicao = false">Cancelar</v-btn>
-              <v-btn color="#7B5CFF" theme="dark" elevation="2" min-width="120" :loading="postStore.loading" @click="salvarEdicao">
+              <v-btn color="#7B5CFF" variant="flat" class="text-white" elevation="2" min-width="120" :loading="postStore.loading" @click="salvarEdicao" >
                 Salvar Alterações
               </v-btn>
             </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="modalDelete" max-width="450">
+          <v-card >
+
+            <!-- TOOLBAR -->
+            <v-toolbar flat color="#7B5CFF">
+              <v-toolbar-title class="text-white font-weight-bold">
+                Confirmar exclusão
+              </v-toolbar-title>
+
+              <v-spacer />
+
+              <v-btn
+                icon="mdi-close"
+                variant="text"
+                class="text-white"
+                @click="modalDelete = false"
+              />
+            </v-toolbar>
+
+            <!-- CONTEÚDO -->
+            <v-card-text class=" pt-4">
+              Tem certeza que deseja excluir o post
+              <strong>"{{ postParaDeletar?.titulo }}"</strong>?
+            </v-card-text>
+
+            <!-- AÇÕES -->
+            <v-card-actions class="justify-end pb-4 px-4">
+              <v-btn variant="text" color="grey" @click="modalDelete = false">
+                Cancelar
+              </v-btn>
+
+              <v-btn
+                color="red"
+                variant="flat"
+                class="text-white"
+                @click="deletarPostConfirmado"
+              >
+                Excluir
+              </v-btn>
+            </v-card-actions>
+
           </v-card>
         </v-dialog>
 
@@ -122,6 +189,10 @@ const postStore = usePostagemStore()
 const search = ref('')
 const items = ref<any[]>([])
 
+const modalDelete = ref(false)
+const postParaDeletar = ref<any>(null)
+
+const alertStore = useAlertStore()
 // Controle do Modal e Item em Edição
 const modalEdicao = ref(false)
 const previewImagem = ref<string | null>(null)
@@ -141,7 +212,7 @@ const headers = [
   { title: 'Título', key: 'titulo' },
   { title: 'Autor', key: 'autor' },
   { title: 'Data', key: 'data' },
-  { title: 'Ações', key: 'acao', sortable: false, align: 'end' },
+  { title: 'Ações', key: 'acao', sortable: false},
 ]
 
 // CARREGAR POSTS
@@ -179,18 +250,35 @@ const salvarEdicao = async () => {
 
     await postStore.atualizarPost(editItem.value.id, payload)
     modalEdicao.value = false
-    alert("Postagem atualizada com sucesso!")
+    alertStore.showSuccess("Postagem atualizada com sucesso!")
     await carregarPosts()
   } catch (error) {
-    alert("Erro ao atualizar postagem.")
+    alertStore.showError("Erro ao atualizar postagem.")
   }
 }
 
+const limparImagem = () => {
+  previewImagem.value = null
+  arquivoNovaFoto.value = null
+  editItem.value.post_url = ''
+}
+
 // DELETAR
-const confirmarDeletar = async (item: any) => {
-  if (confirm(`Deseja deletar "${item.titulo}"?`)) {
-    await postStore.deletarPost(item.id)
-    await carregarPosts()
-  }
+const confirmarDeletar = (item: any) => {
+  postParaDeletar.value = item
+  modalDelete.value = true
+}
+
+const deletarPostConfirmado = async () => {
+  if (!postParaDeletar.value) return
+
+  await postStore.deletarPost(postParaDeletar.value.id)
+
+  modalDelete.value = false
+  postParaDeletar.value = null
+
+  await carregarPosts()
+
+  alertStore.showSuccess("Postagem deletada com sucesso!")
 }
 </script>
