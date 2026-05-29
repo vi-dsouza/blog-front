@@ -65,12 +65,12 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in postsRecentes" :key="item.id">
-                    <td>{{ item.title }}</td>
-                    <td>{{ item.date }}</td>
+                  <tr v-for="item in postsRecentes" :key="item.id || item.titulo || item.data">
+                    <td>{{ item.titulo || item.title }}</td>
+                    <td>{{ item.data || item.date }}</td>
                     <td>
-                      <v-chip size="x-small" :color="item.status === 'Publicado' ? 'success' : 'warning'">
-                        {{ item.status }}
+                      <v-chip size="x-small" :color="(item.status || item.situacao || (item.publicado || item.published ? 'Publicado' : 'Rascunho')) === 'Publicado' ? 'success' : 'warning'">
+                        {{ item.status || item.situacao || (item.publicado || item.published ? 'Publicado' : 'Rascunho') }}
                       </v-chip>
                     </td>
                     <td class="text-right">
@@ -89,28 +89,75 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, computed } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue';
+import { usePostagemStore } from '~/stores/postsStore';
+
+const postsStore = usePostagemStore();
+
+// 1. Variáveis reativas para o dashboard
+const totalPosts = ref<number | string>(0);
+const postsRecentes = ref<any[]>([]);
+
+// 2. Computed para atualizar os cards automaticamente quando as variáveis mudarem
+const stats = computed(() => [
+  { title: 'Views Total', value: '24.8k', icon: 'mdi-eye', color: '#7B5CFF' },
+  { 
+    title: 'Postagens', 
+    value: String(totalPosts.value || postsStore.posts?.length || 0), 
+    icon: 'mdi-post', 
+    color: '#7B5CFF' 
+  },
+  { title: 'Comentários', value: '85', icon: 'mdi-comment-text', color: '#7B5CFF' },
+  { title: 'Inscritos', value: '1.2k', icon: 'mdi-account-group', color: '#7B5CFF' },
+])
+
+function formatarStatus(item: any) {
+  return item.status || item.situacao || (item.publicado || item.published ? 'Publicado' : 'Rascunho')
+}
+
+// 3. Funções para buscar dados do Backend
+async function carregarContagemPosts() {
+  try {
+    const data = await postsStore.contar_posts();
+
+    if (typeof data === 'number') {
+      totalPosts.value = data;
+    } else if (data && typeof data === 'object') {
+      totalPosts.value = data.count ?? 0;
+    } else if (data) {
+      totalPosts.value = Number(data) || 0;
+    }
+  } catch (err) {
+    console.error('Erro ao carregar contagem de posts no componente:', err)
+  }
+}
+
+async function carregarPostsRecentes() {
+  try {
+    const data = await postsStore.carregarPosts();
+    const lista = Array.isArray(data) ? data : (data ? [data] : [])
+    postsRecentes.value = lista.slice(0, 3)
+  } catch (err) {
+    console.error('Erro ao carregar posts recentes:', err)
+    postsRecentes.value = []
+  }
+}
+
+// 4. Ciclo de vida
+onMounted(async () => {
+  await carregarContagemPosts();
+  await carregarPostsRecentes();
+})
 
 definePageMeta({
   middleware: 'auth'
 })
 
-const stats = [
-  { title: 'Views Total', value: '24.8k', icon: 'mdi-eye', color: '#7B5CFF' },
-  { title: 'Postagens', value: '142', icon: 'mdi-post', color: '#7B5CFF' },
-  { title: 'Comentários', value: '85', icon: 'mdi-comment-text', color: '#7B5CFF' },
-  { title: 'Inscritos', value: '1.2k', icon: 'mdi-account-group', color: '#7B5CFF' },
-]
-
+// Dados estáticos (Mock)
 const topPosts = [
   { id: 1, title: 'Como usar Vuetify 3', views: '4.5k' },
   { id: 2, title: 'Guia de Estilo CSS', views: '3.2k' },
   { id: 3, title: 'Dicas de UX/UI', views: '1.8k' },
-]
-
-const postsRecentes = [
-  { id: 1, title: 'Novidades do Blog', date: '20/02/2026', status: 'Publicado' },
-  { id: 2, title: 'Rascunho de Tecnologia', date: '19/02/2026', status: 'Rascunho' },
-  { id: 3, title: 'Entrevista com Devs', date: '15/02/2026', status: 'Publicado' },
 ]
 </script>

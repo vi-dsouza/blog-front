@@ -9,6 +9,7 @@ interface Postagens {
     hashtags: string;
     post: File | null;
     conteudo: string;
+    count: number;
 }
 
 const getHeaders = () => {
@@ -24,6 +25,7 @@ export const usePostagemStore = defineStore('posts', () => {
     const loading = ref(false);
     const error = ref<string | null>(null);
     const config = ref<any[]>([]);
+    const posts = ref<any[]>([]);
 
     async function criarPost(payload: Postagens) {
         loading.value = true;
@@ -80,9 +82,11 @@ export const usePostagemStore = defineStore('posts', () => {
         loading.value = true;
         try {
             const response = await axios.get('http://localhost:5000/post/postagens', getHeaders());
+            posts.value = Array.isArray(response.data) ? response.data : [response.data];
             return response.data;
         } catch (err: any) {
             console.error("Erro ao carregar configurações:", err.response?.data);
+            posts.value = [];
             return null;
         } finally {
             loading.value = false;
@@ -152,13 +156,25 @@ export const usePostagemStore = defineStore('posts', () => {
         }
     }
 
+    async function contar_posts() {
+        loading.value = true;
+        try {
+            const response = await axios.get('http://localhost:5000/post/qtd_posts', getHeaders());
+            return response.data;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     return { 
         criarPost, 
         carregarPosts,
         deletarPost,
         atualizarPost,
+        contar_posts,
         loading, 
         error, 
-        config 
+        config,
+        posts
     }
 })
