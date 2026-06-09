@@ -116,14 +116,12 @@ export const usePostagemStore = defineStore('posts', () => {
         try {
             const formData = new FormData();
             
-            // --- CORREÇÃO DA DATA AQUI ---
             let dataFinal: string = '';
             if (payload.data instanceof Date) {
                 dataFinal = payload.data.toISOString().split('T')[0] || '';
             } else if (typeof payload.data === 'string') {
                 dataFinal = payload.data.split('T')[0] || '';
             }
-            // -----------------------------
 
             // 1. Campos de Texto
             if (payload.titulo) formData.append('titulo', payload.titulo);
