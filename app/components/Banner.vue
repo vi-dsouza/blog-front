@@ -19,7 +19,7 @@ const configStore = useConfiguracaoStore()
 const bannerUrl = ref('https://via.placeholder.com/1200x400?text=Banner+Padr%C3%A3o')
 
 const loadBanner = async () => {
-  const dados = await configStore.carregarConfig()
+  const dados = await configStore.carregarConfigPublico()
 
   if (dados?.banner_url) {
     bannerUrl.value = `http://localhost:5000/config_blog/${dados.banner_url}`

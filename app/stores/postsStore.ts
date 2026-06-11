@@ -93,6 +93,21 @@ export const usePostagemStore = defineStore('posts', () => {
         }
     }
 
+    async function carregarPostsPublico() {
+        loading.value = true;
+        try {
+            const response = await axios.get('http://localhost:5000/post/postagens');
+            posts.value = Array.isArray(response.data) ? response.data : [response.data];
+            return response.data;
+        } catch (err: any) {
+            console.error("Erro ao carregar posts públicos:", err.response?.data);
+            posts.value = [];
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     async function deletarPost(id_post: number) {
         loading.value = true
         error.value = null
@@ -167,6 +182,7 @@ export const usePostagemStore = defineStore('posts', () => {
     return { 
         criarPost, 
         carregarPosts,
+        carregarPostsPublico,
         deletarPost,
         atualizarPost,
         contar_posts,

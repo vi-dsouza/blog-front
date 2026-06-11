@@ -18,7 +18,7 @@ const configStore = useConfiguracaoStore()
 const descricao = ref('')
 
 const loadDescricao = async () => {
-  const dados = await configStore.carregarConfig()
+  const dados = await configStore.carregarConfigPublico()
   descricao.value = dados?.descricao_blog ?? 'Descrição padrão do blog'
 }
 

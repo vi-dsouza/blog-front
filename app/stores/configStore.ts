@@ -89,9 +89,23 @@ export const useConfiguracaoStore = defineStore('config', () => {
         }
     }
 
+    async function carregarConfigPublico() {
+        loading.value = true;
+        try {
+            const response = await axios.get('http://localhost:5000/blog/configuracao');
+            return response.data;
+        } catch (err: any) {
+            console.error("Erro ao carregar configurações públicas:", err.response?.data);
+            return null;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     return { 
         criarConfig, 
         carregarConfig,
+        carregarConfigPublico,
         loading, 
         error, 
         config 

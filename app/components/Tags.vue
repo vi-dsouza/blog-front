@@ -23,7 +23,7 @@ const tags = ref<string[]>([])
 const repeatedTags = computed(() => [...tags.value, ...tags.value])
 
 const loadTags = async () => {
-  const dados = await configStore.carregarConfig()
+  const dados = await configStore.carregarConfigPublico()
   tags.value = dados?.tags_do_blog?.split(',') ?? []
 }
 

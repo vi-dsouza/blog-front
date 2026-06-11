@@ -33,9 +33,17 @@
           </v-row>
         </v-card>
 
+        <br>
+
+        <v-card elevation="2" class="pa-4 rounded-lg">
+          <Inscricao />
+        </v-card>
+
       </v-col>
+
       <v-col cols="8" class="d-flex flex-column gap-4">
-        <PostDestaque />
+        <PostDestaque class="mb-16"/>
+        <Posts class="mb-16"/>
       </v-col>
     </v-row>
 
@@ -47,6 +55,8 @@ import Banner from '@/components/Banner.vue';
 import Tags from '@/components/Tags.vue';
 import Descricao from '@/components/Descricao.vue';
 import PostDestaque from '@/components/Post_destaque.vue';
+import Inscricao from '@/components/Inscricao.vue';
+import Posts from '@/components/Posts.vue';
 
 import { ref, onMounted } from 'vue'
 import { useConfiguracaoStore } from '@/stores/configStore'

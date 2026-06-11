@@ -52,8 +52,7 @@ const liked = ref(false)
 const likesCount = ref(0)
 
 const loadPostDestaque = async () => {
-    const dados = await postagemStore.carregarPosts()
-    console.log('Posts carregados:', dados)
+    const dados = await postagemStore.carregarPostsPublico()
     const lista = Array.isArray(dados) ? dados : (dados ? [dados] : [])
 
     if (lista.length === 0) {
