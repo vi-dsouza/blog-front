@@ -12,6 +12,20 @@ interface Postagens {
     count: number;
 }
 
+interface CacheData {
+    data: any;
+    timestamp: number;
+}
+
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+let cachedPostsPublico: CacheData | null = null;
+let cachedPosts: CacheData | null = null;
+
+const isCacheValid = (cache: CacheData | null): boolean => {
+    if (!cache) return false;
+    return Date.now() - cache.timestamp < CACHE_DURATION;
+}
+
 const getHeaders = () => {
     const token = useCookie('auth_token').value
     return {
@@ -79,13 +93,20 @@ export const usePostagemStore = defineStore('posts', () => {
     }
 
     async function carregarPosts() {
+        if (isCacheValid(cachedPosts)) {
+            posts.value = cachedPosts!.data;
+            return cachedPosts!.data;
+        }
+
         loading.value = true;
         try {
             const response = await axios.get('http://localhost:5000/post/postagens', getHeaders());
-            posts.value = Array.isArray(response.data) ? response.data : [response.data];
-            return response.data;
+            const data = Array.isArray(response.data) ? response.data : [response.data];
+            cachedPosts = { data, timestamp: Date.now() };
+            posts.value = data;
+            return data;
         } catch (err: any) {
-            console.error("Erro ao carregar configurações:", err.response?.data);
+            console.error("Erro ao carregar posts:", err.response?.data);
             posts.value = [];
             return null;
         } finally {
@@ -94,11 +115,18 @@ export const usePostagemStore = defineStore('posts', () => {
     }
 
     async function carregarPostsPublico() {
+        if (isCacheValid(cachedPostsPublico)) {
+            posts.value = cachedPostsPublico!.data;
+            return cachedPostsPublico!.data;
+        }
+
         loading.value = true;
         try {
             const response = await axios.get('http://localhost:5000/post/postagens');
-            posts.value = Array.isArray(response.data) ? response.data : [response.data];
-            return response.data;
+            const data = Array.isArray(response.data) ? response.data : [response.data];
+            cachedPostsPublico = { data, timestamp: Date.now() };
+            posts.value = data;
+            return data;
         } catch (err: any) {
             console.error("Erro ao carregar posts públicos:", err.response?.data);
             posts.value = [];
@@ -108,13 +136,18 @@ export const usePostagemStore = defineStore('posts', () => {
         }
     }
 
+    function invalidarCache() {
+        cachedPosts = null;
+        cachedPostsPublico = null;
+    }
+
     async function deletarPost(id_post: number) {
         loading.value = true
         error.value = null
 
         try {
             await axios.delete(`http://localhost:5000/post/del_post/${id_post}`, getHeaders())
-            
+            invalidarCache()
             config.value = config.value.filter(a => a.id !== id_post)
         } catch (err: any) {
             error.value = err.response?.data?.error || "Erro ao deletar post"
@@ -160,6 +193,7 @@ export const usePostagemStore = defineStore('posts', () => {
             );
 
             await carregarPosts(); 
+            invalidarCache();
             return response.data;
         } catch (err: any) {
             error.value = err.response?.data?.error || "Erro ao atualizar post";
@@ -186,6 +220,7 @@ export const usePostagemStore = defineStore('posts', () => {
         deletarPost,
         atualizarPost,
         contar_posts,
+        invalidarCache,
         loading, 
         error, 
         config,

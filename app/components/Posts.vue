@@ -5,7 +5,7 @@
         v-for="(post, index) in posts"
         :key="`post-${post?.id ?? index}`"
         class="post-card"
-        elevation="4"
+        elevation="1"
       >
         <v-row class="post-row" >
           <v-col class="post-image-col">
@@ -31,7 +31,7 @@
 
         <v-card-actions class="post-actions">
           <v-spacer />
-          <v-btn color="primary" variant="text">Leia mais</v-btn>
+          <v-btn color="primary" variant="text" href="/postagem">Leia mais</v-btn>
         </v-card-actions>
       </v-card>
     </div>
@@ -52,7 +52,7 @@ const loadPosts = async () => {
 
 const formatDate = (value: string | undefined) => {
   if (!value) return ''
-  const date = new Date(value)
+  const date = new Date(value + 'T00:00:00')
   return date.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
@@ -70,7 +70,7 @@ onMounted(loadPosts)
 }
 
 .post-card {
-  border-radius: 24px;
+  border-radius: 14px;
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease;  
   margin: 0;

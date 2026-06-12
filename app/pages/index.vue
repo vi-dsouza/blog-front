@@ -43,11 +43,13 @@
 
       <v-col cols="8" class="d-flex flex-column gap-4">
         <PostDestaque class="mb-16"/>
+        <v-divider class="my-1 pb-16" thickness="2" style="width: 100%;""></v-divider>
         <Posts class="mb-16"/>
       </v-col>
     </v-row>
 
   </v-main>
+  <Footer />
 </template>
 
 <script setup lang="ts">
@@ -57,18 +59,27 @@ import Descricao from '@/components/Descricao.vue';
 import PostDestaque from '@/components/Post_destaque.vue';
 import Inscricao from '@/components/Inscricao.vue';
 import Posts from '@/components/Posts.vue';
+import Footer from '@/components/Footer.vue';
 
 import { ref, onMounted } from 'vue'
 import { useConfiguracaoStore } from '@/stores/configStore'
+import { usePostagemStore } from '@/stores/postsStore'
 
 const configStore = useConfiguracaoStore()
+const postagemStore = usePostagemStore()
 const tags = ref<string[]>([])
 
 const loadTags = async () => {
-  const dados = await configStore.carregarConfig()
+  const dados = await configStore.carregarConfigPublico()
   tags.value = dados?.tags_do_blog?.split(',') ?? []
 }
 
-onMounted(loadTags)
+onMounted(async () => {
+  // Carrega tudo em paralelo para melhor performance
+  await Promise.all([
+    loadTags(),
+    postagemStore.carregarPostsPublico()
+  ])
+})
 
 </script>

@@ -15,7 +15,7 @@
         <v-dialog v-model="dialog" max-width="450px">
             <v-card>
                 <v-card-title class="text-h5 mx-2 my-0 mt-2">
-                    Newsletter Entre Idéias
+                    Newsletter Entre Ideias
                 </v-card-title>
                 <v-card-text class="pt-2 px-6 pb-0">
                     <p class="ma-0 mt-0">Inscreva-se e fique por dentro de novos posts</p>

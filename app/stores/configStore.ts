@@ -11,6 +11,20 @@ interface ConfiguracaoBlog {
     descricao_blog: string;
 }
 
+interface CacheData {
+    data: any;
+    timestamp: number;
+}
+
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+let cachedConfigPublico: CacheData | null = null;
+let cachedConfig: CacheData | null = null;
+
+const isCacheValid = (cache: CacheData | null): boolean => {
+    if (!cache) return false;
+    return Date.now() - cache.timestamp < CACHE_DURATION;
+}
+
 const getHeaders = () => {
     const token = useCookie('auth_token').value
     return {
@@ -70,6 +84,7 @@ export const useConfiguracaoStore = defineStore('config', () => {
             
             error.value = mensagemErro;
             console.error("Erro na API: ", err.response?.data);
+            invalidarCache();
             throw err;
         } finally {
             loading.value = false;
@@ -77,9 +92,14 @@ export const useConfiguracaoStore = defineStore('config', () => {
     }
 
     async function carregarConfig() {
+        if (isCacheValid(cachedConfig)) {
+            return cachedConfig!.data;
+        }
+
         loading.value = true;
         try {
             const response = await axios.get('http://localhost:5000/blog/configuracao', getHeaders());
+            cachedConfig = { data: response.data, timestamp: Date.now() };
             return response.data;
         } catch (err: any) {
             console.error("Erro ao carregar configurações:", err.response?.data);
@@ -90,9 +110,14 @@ export const useConfiguracaoStore = defineStore('config', () => {
     }
 
     async function carregarConfigPublico() {
+        if (isCacheValid(cachedConfigPublico)) {
+            return cachedConfigPublico!.data;
+        }
+
         loading.value = true;
         try {
             const response = await axios.get('http://localhost:5000/blog/configuracao');
+            cachedConfigPublico = { data: response.data, timestamp: Date.now() };
             return response.data;
         } catch (err: any) {
             console.error("Erro ao carregar configurações públicas:", err.response?.data);
@@ -102,10 +127,16 @@ export const useConfiguracaoStore = defineStore('config', () => {
         }
     }
 
+    function invalidarCache() {
+        cachedConfig = null;
+        cachedConfigPublico = null;
+    }
+
     return { 
         criarConfig, 
         carregarConfig,
         carregarConfigPublico,
+        invalidarCache,
         loading, 
         error, 
         config 
