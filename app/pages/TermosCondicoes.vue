@@ -1,6 +1,6 @@
 <template>
+  <Banner />
   <v-main>
-    <Banner />
     <v-container fluid class="pa-0">
       <v-sheet class="bg-surface-2 py-8">
         <v-row justify="center">

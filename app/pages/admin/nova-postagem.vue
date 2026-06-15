@@ -33,6 +33,7 @@
           </v-col>
 
           <v-col cols="12" md="4">
+            <label class="editor-label text-subtitle-2 mb-2 d-block">Capa do Post</label>
             <v-sheet
               border="dashed md"
               color="grey-lighten-4"
@@ -54,7 +55,7 @@
           </v-col>
 
           <v-col cols="12" md="8">
-            <v-textarea
+            <!-- <v-textarea
               clearable
               v-model="conteudo"
               label="Conteúdo do Post"
@@ -63,7 +64,17 @@
               rows="11"
               max-rows="10"
               color="#7B5CFF"
-            ></v-textarea>
+            ></v-textarea> -->
+            <div class="editor-wrapper">
+              <label class="editor-label text-subtitle-2 mb-2 d-block">Conteúdo do Post</label>
+              
+              <QuillEditor 
+                v-model:content="conteudo" 
+                contentType="html" 
+                theme="snow"
+                placeholder="Escreva e estilize o conteúdo do seu post aqui..."
+              />
+            </div>
           </v-col>
 
           <v-col cols="12" class="d-flex flex-column flex-sm-row justify-end ga-4 mt-4">
@@ -79,6 +90,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue';
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import { usePostagemStore } from '~/stores/postsStore';
 import { useAlertStore } from "~/stores/alert"
 // Importamos o roteador para redirecionar após publicar
@@ -155,7 +168,7 @@ const cancelar = () => {
 }
 </script>
 
-<style>
+<style scoped>
 /* Faz a aplicação ocupar 100% da tela */
     html, body, #__nuxt, #app {
     height: 100%;
@@ -182,4 +195,45 @@ const cancelar = () => {
     background-color: #f3efff !important;
     border-color: #7B5CFF !important;
   }
+
+  /* 2. Customização para o editor adotar a sua cor roxa (#7B5CFF) e se parecer com o Vuetify */
+  .editor-wrapper {
+    --quill-color: #7B5CFF;
+  }
+
+  .editor-label {
+    color: var(--quill-color);
+    font-weight: 600;
+  }
+
+/* Altura fixa na área de texto do Editor */
+.editor-wrapper :deep(.ql-container.ql-snow) {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-color: rgba(0, 0, 0, 0.22);
+  font-size: 1rem;
+  
+  /* Definimos a altura fixa aqui (ex: 400px) */
+  height: 250px; 
+  
+  /* Garante que se o texto passar de 400px, apareça a barra de rolagem */
+  overflow-y: auto; 
+}
+
+/* Mantém as bordas arredondadas da barra de ferramentas */
+.editor-wrapper :deep(.ql-toolbar.ql-snow) {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-color: rgba(0, 0, 0, 0.22);
+  background-color: #fafafa;
+}
+
+/* Cor roxa de foco ao clicar */
+.editor-wrapper {
+  --quill-color: #7B5CFF;
+}
+.editor-wrapper :deep(.ql-container:focus-within),
+.editor-wrapper :deep(.ql-toolbar:focus-within) {
+  border-color: var(--quill-color) !important;
+}
 </style>

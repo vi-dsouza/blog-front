@@ -22,7 +22,7 @@
             <v-card-text class="post-content">
               <div class="post-title">{{ post?.titulo }}</div>
               <div class="post-meta">{{ post?.autor }} • {{ formatDate(post?.data) }}</div>
-              <div class="post-excerpt">{{ post?.conteudo }}</div>
+              <div class="post-excerpt" v-html="post?.conteudo"></div>
             </v-card-text>
           </v-col>
         </v-row>
@@ -31,7 +31,7 @@
 
         <v-card-actions class="post-actions">
           <v-spacer />
-          <v-btn color="primary" variant="text" href="/postagem">Leia mais</v-btn>
+          <v-btn color="primary" variant="text" @click="irParaPost(post)">Leia mais</v-btn>
         </v-card-actions>
       </v-card>
     </div>
@@ -58,6 +58,13 @@ const formatDate = (value: string | undefined) => {
     month: 'short',
     year: 'numeric'
   })
+}
+
+const irParaPost = (post: any) => {
+  // Só navega se o post realmente tiver um ID vindo da API
+  if (post && post.id) {
+    navigateTo(`/postagem/${post.id}`)
+  }
 }
 
 onMounted(loadPosts)

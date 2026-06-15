@@ -31,8 +31,8 @@
                             #{{ tag.trim() }}
                         </v-chip>
                     </div>
-                    <p class="text-body-2 opacity-80" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;">
-                        {{ postDestaque?.conteudo || 'Aguarde enquanto buscamos o post mais recente para você.' }}
+                    <p class="text-body-2 opacity-80" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"
+                        v-html="postDestaque?.conteudo || 'Aguarde enquanto buscamos o post mais recente para você.'">
                     </p>
                 </div>
 
@@ -41,7 +41,7 @@
                         <v-btn title="Curtir" icon :color="liked ? 'red' : undefined" @click="toggleLike" :aria-pressed="String(liked)">
                             <v-icon>{{ liked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
                         </v-btn>
-                        <v-btn title="Visualizar" icon color="blue" href="/postagem">
+                        <v-btn title="Visualizar" icon color="blue" @click="irParaPost(postDestaque)">
                             <v-icon>mdi-eye</v-icon>
                         </v-btn>
                         <v-btn title="Compartilhar" icon>
@@ -94,7 +94,27 @@ function toggleLike() {
     }
 }
 
+const irParaPost = (post: any) => {
+  // Só navega se o post realmente tiver um ID vindo da API
+  if (post && post.id) {
+    navigateTo(`/postagem/${post.id}`)
+  }
+}
+
 onMounted(() => {
     loadPostDestaque()
 })
 </script>
+
+<style scoped>
+    /* Remove qualquer cor de fundo vinda de elementos de texto (como spans do editor) */
+    .text-body-2 :deep(span) {
+    background-color: transparent !important;
+    }
+
+    /* Garante que parágrafos internos também não forcem fundos esquisitos */
+    .text-body-2 :deep(*) {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+</style>
