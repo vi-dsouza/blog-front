@@ -19,17 +19,28 @@
         <br>
 
         <v-card title="Sobre a autora" elevation="2" class="pa-2 rounded-lg">
-          <v-row class="pa-4 d-flex align-center gap-6" justify="start">
-            <v-col cols="auto" class="d-flex justify-center">
-              <v-avatar size="120" border="2" color="#7B5CFF">
-                <v-img src="https://via.placeholder.com/150" alt="Foto da autora"></v-img>
+          <v-row v-if="autores.length > 0" class="pa-2 d-flex align-center" justify="center">
+            
+            <v-col cols="3" sm="auto" class="d-flex flex-column align-center justify-center gap-3">
+              <v-avatar size="100" style="border: 3px solid #7B5CFF;">
+                <v-img :src="autores[0].foto_url" alt="Foto da autora" cover></v-img>
               </v-avatar>
+              
+              <p class="text-subtitle-1 font-weight-bold text-grey-darken-4 text-center lh-tight">
+                {{ autores[0].nome }}
+              </p>
             </v-col>
-            <v-col cols="7" class="d-flex flex-column gap-2">
-              <v-card-text>
-                Este é um blog de tecnologia onde compartilhamos as últimas novidades, tutoriais e análises sobre o mundo da tecnologia. Fique ligado para conteúdos interessantes e atualizados!
+            <br>
+            <v-col cols="7" sm="grow" class="d-flex flex-column gap-2">
+              <v-card-text class="text-body-2 text-center text-sm-left pa-0 text-grey-darken-1 lh-relaxed">
+                {{ autores[0].biografia || 'Nenhuma biografia informada.' }}
               </v-card-text>
             </v-col>
+
+          </v-row>
+
+          <v-row v-else class="pa-4 justify-center">
+            <span class="text-caption text-grey">Carregando informações da autora...</span>
           </v-row>
         </v-card>
 
@@ -64,20 +75,35 @@ import Footer from '@/components/Footer.vue';
 import { ref, onMounted } from 'vue'
 import { useConfiguracaoStore } from '@/stores/configStore'
 import { usePostagemStore } from '@/stores/postsStore'
+import { useAdminStore } from '@/stores/adminStore';
 
 const configStore = useConfiguracaoStore()
 const postagemStore = usePostagemStore()
+const adminStore = useAdminStore()
 const tags = ref<string[]>([])
+const autores = ref<any[]>([])
+const autor = ref<any[]>([])
 
 const loadTags = async () => {
   const dados = await configStore.carregarConfigPublico()
   tags.value = dados?.tags_do_blog?.split(',') ?? []
 }
 
+const info_autor = async () => {
+  try {
+    await adminStore.busca_info_autores()
+    autores.value = adminStore.autor || []
+    console.log(autores.value)
+  } catch (error) {
+    console.error("Erro ao buscar autores:", error)
+  }
+}
+
 onMounted(async () => {
   // Carrega tudo em paralelo para melhor performance
   await Promise.all([
     loadTags(),
+    info_autor(),
     postagemStore.carregarPostsPublico()
   ])
 })

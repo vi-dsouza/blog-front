@@ -7,6 +7,7 @@ interface AdminRegister {
     email: string;
     senha?: string;
     is_admin: boolean;
+    biografia: string;
     foto: File | null;
 }
 
@@ -24,6 +25,7 @@ export const useAdminStore = defineStore('admin', () => {
     const loading = ref(false)
     const error = ref<string | null>(null);
     const admin = ref<any[]>([])
+    const autor = ref<any[]>([])
 
     async function registrarAdmin(payload: AdminRegister) {
         loading.value = true
@@ -32,6 +34,7 @@ export const useAdminStore = defineStore('admin', () => {
         const formData = new FormData()
         formData.append('nome', payload.nome)
         formData.append('email', payload.email)
+        formData.append('biografia', payload.biografia)
         formData.append('is_admin', payload.is_admin.toString())
 
         if (payload.senha) formData.append('senha', payload.senha)
@@ -66,6 +69,20 @@ export const useAdminStore = defineStore('admin', () => {
         }
     }
 
+    async function busca_info_autores() {
+        loading.value = true
+        error.value = null
+
+        try {
+            const response = await axios.get('http://localhost:5000/auth/autores', getHeaders());
+            autor.value = response.data  
+        } catch (err: any) {
+            error.value = err.response?.data?.message || 'Erro ao buscar info do autor!'
+        } finally {
+            loading.value = false
+        }
+    }
+
     async function deletarAdmin(id: number) {
         loading.value = true
         error.value = null
@@ -92,6 +109,7 @@ export const useAdminStore = defineStore('admin', () => {
             // Adicionamos ao FormData apenas o que foi passado no payload
             if (payload.nome) formData.append('nome', payload.nome);
             if (payload.email) formData.append('email', payload.email);
+            if (payload.biografia) formData.append('biografia', payload.biografia);
             if (payload.is_admin !== undefined) {
                 formData.append('is_admin', String(payload.is_admin));
             }
@@ -116,5 +134,5 @@ export const useAdminStore = defineStore('admin', () => {
         }
     }
 
-    return { registrarAdmin, busca_admins, deletarAdmin, atualizarAdmin, admin, loading, error }
+    return { registrarAdmin, busca_admins, busca_info_autores, deletarAdmin, atualizarAdmin, admin, autor, loading, error }
 })

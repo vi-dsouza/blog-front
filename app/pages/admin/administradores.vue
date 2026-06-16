@@ -110,15 +110,25 @@
                       variant="outlined"
                       density="comfortable"
                       prepend-inner-icon="mdi-lock"
-                    />
-                    <v-switch 
-                      label="Administrador"
-                      v-model="form.is_admin"
-                      color="success"
-                    >
-                     
-                    </v-switch>
+                    />  
                   </v-col>
+                  <v-col cols="12" md="12">
+                      <v-textarea label="Biografia" 
+                        variant="outlined"
+                        v-model="form.biografia"
+                        density="comfortable"
+                        prepend-inner-icon="mdi-account-details-outline"  
+                        counter="500"
+                        maxlength="500"
+                      />
+
+                      <v-switch 
+                        label="Administrador"
+                        v-model="form.is_admin"
+                        color="success"
+                      >
+                      </v-switch>
+                   </v-col>
                 </v-row>
 
                 <!-- DIVISOR -->
@@ -287,7 +297,8 @@ const form = ref({
   nome: '',
   email: '',
   senha: '',
-  is_admin: false
+  is_admin: false,
+  biografia: ''
 })
 
 const handleSalvar = async () => {
@@ -321,7 +332,8 @@ const abrirEdicao = (item: any) => {
     nome: item.nome,
     email: item.email,
     senha: '', 
-    is_admin: !!item.is_admin
+    is_admin: !!item.is_admin,
+    biografia: item.biografia,
   };
   urlPreview.value = item.foto_url || null;
   cadastroAdmin.value = true;
@@ -367,7 +379,8 @@ const resetForm = () => {
     nome: '', 
     email: '', 
     senha: '', 
-    is_admin: false 
+    is_admin: false, 
+    biografia: ''
   };
   
   fotoInput.value = null;
