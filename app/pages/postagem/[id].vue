@@ -60,13 +60,40 @@
                 </div>
               </div>
               <v-spacer></v-spacer>
-              <v-btn title="Curtir" icon :color="liked ? 'red' : undefined" @click="toggleLike" :aria-pressed="String(liked)">
-                <v-icon>{{ liked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
-              </v-btn>
-              <v-btn title="Compartilhar" icon>
+              <div class="d-flex align-center position-relative">
+                <v-btn 
+                  title="Curtir" 
+                  icon 
+                  :color="liked ? 'red' : undefined" 
+                  @click="toggleLike" 
+                  :aria-pressed="String(liked)"
+                  style="z-index: 2;"
+                >
+                  <v-icon>{{ liked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+                  </v-btn>
+
+                <div 
+                  class="border py-1 pr-4 pl-6 rounded-e-pill text-subtitle-2 font-weight-bold text-grey-darken-2"
+                  :style="[
+                  { marginBackground: '#f5f5f5', marginLeft: '-20px', zIndex: 1 },
+                  liked ? { borderColor: '#f44336 !important', color: '#d32f2f !important', backgroundColor: '#ffebee' } : {}
+                  ]"
+                >
+                  {{ likesCount }}
+                </div>
+              </div>
+              <v-btn title="Compartilhar" icon @click="compartilhar(post)">
                 <v-icon>mdi-share-variant</v-icon>
               </v-btn>
             </v-row>
+            <v-snackbar v-model="snackbar" timeout="2500" color="success" rounded="xl">
+              <div class="d-flex align-center">
+                <v-icon class="mr-2">
+                  mdi-check-circle
+                </v-icon>
+                <span>Link copiado para área de transferência!</span>
+              </div>
+            </v-snackbar>
 
             <v-img
               :src="post.post_url || '/placeholder.png'"
@@ -93,8 +120,8 @@ import { ref, onMounted } from 'vue';
 import { usePostagemStore } from '@/stores/postsStore';
 import Banner from '@/components/Banner.vue';
 import Footer from '@/components/Footer.vue';
+import axios from 'axios'; // Importação do axios necessária para falar com o Flask
 
-// No Nuxt, 'useRoute' é global e não precisa de importação manual do vue-router
 const route = useRoute(); 
 const postagemStore = usePostagemStore();
 
@@ -102,22 +129,19 @@ const post = ref<any>(null);
 const loading = ref(true);
 const liked = ref(false);
 const likesCount = ref(0); 
+const snackbar = ref(false);
 
 const loadPostData = async () => {
   try {
     loading.value = true;
-    
-    // Captura o parâmetro ID da URL e transforma em Number purificado
     const idDoPost = Number(route.params.id); 
 
     const dados = await postagemStore.carregarPostsPublico();
     const listaDePosts = Array.isArray(dados) ? dados : dados ? [dados] : [];
     
-    // Filtra localizando o ID correspondente da API
     const postEncontrado = listaDePosts.find((p: any) => Number(p.id) === idDoPost);
 
     if (postEncontrado) {
-      // Divide a string "teste, inicio, start" em um Array real de strings
       if (postEncontrado.hashtags && typeof postEncontrado.hashtags === 'string') {
         postEncontrado.listaHashtags = postEncontrado.hashtags.split(',').map((h: string) => h.trim());
       } else {
@@ -125,6 +149,24 @@ const loadPostData = async () => {
       }
       
       post.value = postEncontrado;
+
+      likesCount.value = postEncontrado.likes_count || 0;
+
+      // ====== AQUI CONFIGURAMOS A IMAGEM E O LINK INTELIGENTE ======
+      useSeoMeta({
+        title: postEncontrado.titulo,
+        ogTitle: postEncontrado.titulo,
+        description: 'Confira este artigo incrível no nosso blog!',
+        ogDescription: 'Confira este artigo incrível no nosso blog!',
+        // Esta é a tag mágica que puxa a imagem pequena/preview para o link!
+        ogImage: postEncontrado.post_url || 'http://localhost:3000/placeholder.png',
+        twitterCard: 'summary_large_image',
+      });
+      // ===============================================================
+
+      // [INTEGRAÇÃO]: Verifica no LocalStorage se este navegador já curtiu o post atual
+      const curtidos = JSON.parse(localStorage.getItem('blog_liked_posts') || '[]');
+      liked.value = curtidos.includes(idDoPost);
     }
 
   } catch (error) {
@@ -144,17 +186,79 @@ const formatDate = (value: string | undefined) => {
   });
 };
 
-function toggleLike() {
-    if (liked.value) {
-        likesCount.value = Math.max(0, likesCount.value - 1)
-        liked.value = false
-    } else {
-        likesCount.value = likesCount.value + 1
-        liked.value = true
+async function toggleLike() {
+  if (!post.value) return;
+
+  const id_post = post.value.id;
+  const action = liked.value ? 'unlike' : 'like';
+
+  try {
+    // Agora chama perfeitamente a Store passando os parâmetros isolados
+    const resultado = await postagemStore.alternarCurtidaNoServidor(id_post, action);
+
+    if (resultado && resultado.success) {
+      likesCount.value = resultado.likes_count;
+      liked.value = !liked.value;
+
+      let curtidos = JSON.parse(localStorage.getItem('blog_liked_posts') || '[]');
+      if (liked.value) {
+        curtidos.push(id_post);
+      } else {
+        curtidos = curtidos.filter((id: number) => id !== id_post);
+      }
+      localStorage.setItem('blog_liked_posts', JSON.stringify(curtidos));
     }
+  } catch (error) {
+    console.error("Erro no clique do componente:", error);
+  }
 }
 
-// Navegação limpa do Nuxt para retornar à lista principal
+const compartilhar = async (currentPost: any) => {
+  if (!currentPost || !currentPost.id) return;
+
+  const urlDoPost = `${window.location.origin}/postagem/${currentPost.id}`;
+  const tituloCompartilhar = `Confira este artigo: ${currentPost.titulo}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: currentPost.titulo,
+        text: tituloCompartilhar,
+        url: urlDoPost,
+      });
+      return;
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') console.error(error);
+    }
+  }
+
+  try {
+    const htmlLink = `<a href="${urlDoPost}" target="_blank">${currentPost.titulo}</a>`;
+
+    const blobHtml = new Blob([htmlLink], { type: 'text/html' });
+    const blobText = new Blob([urlDoPost], { type: 'text/plain' });
+
+    const clipboardItem = new ClipboardItem({
+      'text/html': blobHtml,
+      'text/plain': blobText
+    });
+
+    await navigator.clipboard.write([clipboardItem]);
+    
+    snackbar.value = true;
+
+  } catch (err) {
+    console.error("Falha ao copiar link inteligente:", err);
+    
+    try {
+      await navigator.clipboard.writeText(urlDoPost);
+      snackbar.value = true;
+    } catch (fallbackErr) {
+      alert("Copie a URL direto da barra de endereços.");
+    }
+  }
+};
+
 const voltar = () => {
   navigateTo('/'); 
 };

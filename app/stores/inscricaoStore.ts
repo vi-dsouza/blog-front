@@ -80,6 +80,16 @@ export const useInscritosStore = defineStore("inscritos", () => {
         }
     }
 
+    async function contar_inscritos() {
+        carregando.value = true;
+        try {
+            const response = await axios.get('http://localhost:5000/insc/qtd_inscritos');
+            return response.data;
+        } finally {
+            carregando.value = false;
+        }
+    }
+
     function limparEstados() {
         erro.value = null
         sucesso.value = false
@@ -92,6 +102,7 @@ export const useInscritosStore = defineStore("inscritos", () => {
         realizarInscricao,
         confirmarToken,
         limparEstados,
-        cancelarInscricao
+        cancelarInscricao,
+        contar_inscritos
     }
 })

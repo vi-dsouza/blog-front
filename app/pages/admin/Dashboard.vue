@@ -92,12 +92,15 @@
 import { ref, onMounted, computed } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue';
 import { usePostagemStore } from '~/stores/postsStore';
+import { useInscritosStore } from '~/stores/inscricaoStore';
 
 const postsStore = usePostagemStore();
+const qtdIncritos = useInscritosStore();
 
 // 1. Variáveis reativas para o dashboard
 const totalPosts = ref<number | string>(0);
 const postsRecentes = ref<any[]>([]);
+const totalInscritos = ref<number | string>(0);
 
 // 2. Computed para atualizar os cards automaticamente quando as variáveis mudarem
 const stats = computed(() => [
@@ -108,8 +111,7 @@ const stats = computed(() => [
     icon: 'mdi-post', 
     color: '#7B5CFF' 
   },
-  { title: 'Comentários', value: '85', icon: 'mdi-comment-text', color: '#7B5CFF' },
-  { title: 'Inscritos', value: '1.2k', icon: 'mdi-account-group', color: '#7B5CFF' },
+  { title: 'Inscritos', value: String(totalInscritos.value || 0), icon: 'mdi-account-group', color: '#7B5CFF' },
 ])
 
 function formatarStatus(item: any) {
@@ -133,6 +135,22 @@ async function carregarContagemPosts() {
   }
 }
 
+async function carregarQtdInscritos() {
+  try {
+    const data = await qtdIncritos.contar_inscritos();
+
+    if (typeof data === 'number') {
+      totalInscritos.value = data;
+    } else if (data && typeof data === 'object') {
+      totalInscritos.value = data.count ?? 0;
+    } else if (data) {
+      totalInscritos.value = Number(data) || 0;
+    }
+  } catch (err) {
+    console.error("Erro ao carregar quantidade de inscritos:", err)
+  }
+}
+
 async function carregarPostsRecentes() {
   try {
     const data = await postsStore.carregarPosts();
@@ -147,6 +165,7 @@ async function carregarPostsRecentes() {
 // 4. Ciclo de vida
 onMounted(async () => {
   await carregarContagemPosts();
+  await carregarQtdInscritos();
   await carregarPostsRecentes();
 })
 

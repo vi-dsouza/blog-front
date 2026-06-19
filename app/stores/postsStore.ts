@@ -213,6 +213,26 @@ export const usePostagemStore = defineStore('posts', () => {
         }
     }
 
+    // [INTEGRAÇÃO]: Função corrigida com a URL correta e sem bloqueio de Token
+    async function alternarCurtidaNoServidor(id_post: number, action: 'like' | 'unlike') {
+        try {
+            const response = await axios.post(
+                `http://localhost:5000/post/curtir/${id_post}/like`, 
+                { action },
+                { headers: { 'Content-Type': 'application/json' } } 
+            );
+            
+            if (response.data && response.data.success) {
+                invalidarCache(); 
+                return { success: true, likes_count: response.data.likes_count };
+            }
+            return { success: false, likes_count: 0 };
+        } catch (err) {
+            console.error("Erro na store ao processar curtida:", err);
+            return { success: false, likes_count: 0 };
+        }
+    }
+
     return { 
         criarPost, 
         carregarPosts,
@@ -221,6 +241,7 @@ export const usePostagemStore = defineStore('posts', () => {
         atualizarPost,
         contar_posts,
         invalidarCache,
+        alternarCurtidaNoServidor,
         loading, 
         error, 
         config,
