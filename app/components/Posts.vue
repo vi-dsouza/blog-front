@@ -2,7 +2,7 @@
   <v-main>
     <div class="posts-grid">
       <v-card
-        v-for="(post, index) in posts"
+        v-for="(post, index) in postsFiltrados"
         :key="`post-${post?.id ?? index}`"
         class="post-card"
         elevation="1"
@@ -39,11 +39,28 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { usePostagemStore } from '@/stores/postsStore'
 
 const postagemStore = usePostagemStore()
 const posts = ref<any[]>([])
+
+const props = defineProps({
+  filtroTitulo: String
+})
+
+const postsFiltrados = computed(() => {
+  if (!props.filtroTitulo || props.filtroTitulo.trim() === '') {
+    return posts.value
+  }
+
+  const termoBusca = props.filtroTitulo.toLowerCase().trim()
+
+  return posts.value.filter(post => {
+    const tituloPost = post?.titulo ? String(post.titulo).toLowerCase() : ''
+    return tituloPost.includes(termoBusca)
+  })
+})
 
 const loadPosts = async () => {
   const dados = await postagemStore.carregarPostsPublico()

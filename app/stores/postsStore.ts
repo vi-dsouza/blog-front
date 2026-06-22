@@ -48,25 +48,20 @@ export const usePostagemStore = defineStore('posts', () => {
         try {
             const formData = new FormData();
 
-            // 1. Tratamento de Data
             let dataFinal: string = '';
 
             if (payload.data instanceof Date) {
-                // Adicionado "|| ''" aqui também para garantir que o TS não reclame do [0]
                 dataFinal = payload.data.toISOString().split('T')[0] || '';
             } else if (typeof payload.data === 'string') {
-                // Garante que o resultado seja sempre string
                 dataFinal = payload.data.split('T')[0] || '';
             }
 
-            // 2. Montagem do FormData com os textos
             formData.append('titulo', payload.titulo);
             formData.append('data', dataFinal);
             formData.append('autor', payload.autor);
             formData.append('hashtags', payload.hashtags);
             formData.append('conteudo', payload.conteudo);
 
-            // 3. Tratamento do Banner
             if (payload.post instanceof File) {
                 formData.append('post', payload.post);
             }
@@ -80,10 +75,7 @@ export const usePostagemStore = defineStore('posts', () => {
             return response.data;
 
         } catch (err: any) {
-            const mensagemErro = err.response?.data?.error || 
-                                err.response?.data?.message || 
-                                'Erro ao salvar configuração!';
-            
+            const mensagemErro = err.response?.data?.error || err.response?.data?.message || 'Erro ao salvar configuração!';
             error.value = mensagemErro;
             console.error("Erro na API: ", err.response?.data);
             throw err;
@@ -171,26 +163,19 @@ export const usePostagemStore = defineStore('posts', () => {
                 dataFinal = payload.data.split('T')[0] || '';
             }
 
-            // 1. Campos de Texto
             if (payload.titulo) formData.append('titulo', payload.titulo);
             if (payload.autor) formData.append('autor', payload.autor);
             if (payload.hashtags) formData.append('hashtags', payload.hashtags);
             if (payload.conteudo) formData.append('conteudo', payload.conteudo);
             
-            // Envia a data formatada corretamente
             if (dataFinal) formData.append('data', dataFinal);
 
-            // 2. Lógica da Imagem
             if (payload.post instanceof File) {
                 formData.append('post', payload.post);
                 console.log("📸 Nova imagem detectada no payload");
             }
 
-            const response = await axios.put(
-                `http://localhost:5000/post/update_post/${id_post}`, 
-                formData, 
-                getHeaders()
-            );
+            const response = await axios.put(`http://localhost:5000/post/update_post/${id_post}`, formData, getHeaders());
 
             await carregarPosts(); 
             invalidarCache();
@@ -213,7 +198,6 @@ export const usePostagemStore = defineStore('posts', () => {
         }
     }
 
-    // [INTEGRAÇÃO]: Função corrigida com a URL correta e sem bloqueio de Token
     async function alternarCurtidaNoServidor(id_post: number, action: 'like' | 'unlike') {
         try {
             const response = await axios.post(
