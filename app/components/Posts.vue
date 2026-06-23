@@ -1,37 +1,39 @@
 <template>
   <v-main>
-    <div class="posts-grid">
+    <div class="posts-grid px-2 px-sm-4">
       <v-card
         v-for="(post, index) in postsFiltrados"
         :key="`post-${post?.id ?? index}`"
         class="post-card"
-        elevation="1"
+        elevation="0"
       >
-        <v-row class="post-row" >
-          <v-col class="post-image-col">
+        <v-row class="ma-0 pa-2 pa-sm-4" align="center">
+          
+          <v-col cols="12" md="4" class="d-flex justify-center align-center">
             <v-img
               :src="post?.post_url || '/placeholder.png'"
-              width="60%"
-              height="180px"
-              contain
+              width="100%"
+              max-height="220px"
+              cover
               class="post-image rounded-lg"
+              style="border: 1px solid #EAA851;"
             ></v-img>
           </v-col>
 
-          <v-col class="post-info-col">
-            <v-card-text class="post-content">
-              <div class="post-title">{{ post?.titulo }}</div>
-              <div class="post-meta">{{ post?.autor }} • {{ formatDate(post?.data) }}</div>
-              <div class="post-excerpt" v-html="post?.conteudo"></div>
+          <v-col cols="12" md="8" class="pa-2 pa-sm-4">
+            <v-card-text class="pa-0">
+              <div class="post-title text-h6 text-sm-h5 text-septenary">{{ post?.titulo }}</div>
+              <div class="post-meta text-caption text-sm-body-2">{{ post?.autor }} • {{ formatDate(post?.data) }}</div>
+              <div class="post-excerpt text-body-2 text-sm-body-1" v-html="post?.conteudo"></div>
             </v-card-text>
           </v-col>
         </v-row>
 
-        <v-divider />
+        <v-divider style="border-color: rgb(var(--v-theme-background)) !important;" />
 
-        <v-card-actions class="post-actions">
+        <v-card-actions class="px-4 py-2">
           <v-spacer />
-          <v-btn color="primary" variant="text" @click="irParaPost(post)">Leia mais</v-btn>
+          <v-btn color="primary" variant="text" class="font-weight-bold" @click="irParaPost(post)">Leia mais</v-btn>
         </v-card-actions>
       </v-card>
     </div>
@@ -78,7 +80,6 @@ const formatDate = (value: string | undefined) => {
 }
 
 const irParaPost = (post: any) => {
-  // Só navega se o post realmente tiver um ID vindo da API
   if (post && post.id) {
     navigateTo(`/postagem/${post.id}`)
   }
@@ -94,165 +95,59 @@ onMounted(loadPosts)
 }
 
 .post-card {
-  border-radius: 14px;
+  border-radius: 20px !important;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;  
-  margin: 0;
+  background: #EAE3D2 !important;
+  border: 2px solid rgb(var(--v-theme-primary)) !important; 
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;  
 }
 
 .post-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.12);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 15px rgba(234, 168, 81, 0.2) !important;
 }
 
 .post-image {
-  margin: 12px;
-  padding: 10px;
-  top: 3%;
   object-fit: cover;
-}
-
-.post-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 4px;
-}
-
-.post-image-col {
-  width: 15%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.post-info-col {
-  width: 80%;
-  padding-right: 80px;
-}
-
-.post-content {
-  padding: 18px 0;
+  width: 100%;
 }
 
 .post-title {
-  font-size: 1.35rem;
-  font-weight: 800;
-  margin-bottom: 10px;
-  color: #111827;
-  letter-spacing: 0.01em;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: #231E1A !important; 
 }
 
 .post-meta {
-  color: rgba(31, 41, 55, 0.8);
-  font-size: 0.92rem;
-  margin-bottom: 14px;
-  text-transform: capitalize;
+  color: #5C524A !important;
+  font-weight: 500;
+  margin-bottom: 12px;
 }
 
 .post-excerpt {
-  color: rgba(31, 41, 55, 0.95);
-  font-size: 1rem;
-  font-weight: 200;
-  line-height: 1.2;
+  color: #3D3530 !important;
+  line-height: 1.6;
   display: -webkit-box;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  opacity: 0.95;
 }
 
-.post-actions {
-  padding: 16px 24px;
+:deep(.v-btn) {
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+  color: rgb(var(--v-theme-secondary)) !important; 
 }
 
-/* Tablets e telas médias */
-@media (max-width: 960px) {
-  .post-row {
-    display: block !important;
-    flex-wrap: wrap;
-  }
-
-  .post-image-col {
-    width: 100% !important;
-    margin-bottom: 16px;
-    display: block !important;
-  }
-
-  .post-image {
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  .post-info-col {
-    width: 100% !important;
-    padding-right: 16px;
-  }
-
-  .post-title {
-    font-size: 1.2rem;
-  }
-
-  .post-excerpt {
-    font-size: 0.95rem;
-    -webkit-line-clamp: 3;
-  }
-}
-
-/* Celulares pequenos */
 @media (max-width: 600px) {
   .posts-grid {
     gap: 16px;
   }
-
-  .post-card {
-    border-radius: 16px;
-  }
-
-  .post-row {
-    display: block !important;
-  }
-
-  .post-image-col {
-    width: 100% !important;
-    margin-bottom: 12px;
-    display: block !important;
-  }
-
-  .post-image {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-  }
-
-  .post-info-col {
-    width: 100% !important;
-    padding-right: 0;
-  }
-
-  .post-content {
-    padding: 12px 0;
-  }
-
-  .post-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-
-  .post-meta {
-    font-size: 0.85rem;
-    margin-bottom: 10px;
-  }
-
   .post-excerpt {
-    font-size: 0.9rem;
-    line-height: 1.5;
     -webkit-line-clamp: 2;
-  }
-
-  .post-actions {
-    padding: 12px 16px;
   }
 }
 </style>

@@ -1,88 +1,99 @@
 <template>
-    <v-card elevation="6" class="rounded-xl overflow-hidden" style="background: rgba(33, 150, 243, 0.12); backdrop-filter: blur(14px); border: 1px solid rgba(33, 150, 243, 0.22);">
-        <v-row class="ma-0" no-gutters>
-            <v-col cols="12" md="4" class="pa-0">
-                <v-img
-                    :src="postDestaque?.post_url || '/placeholder.png'"
-                    class="h-100"
-                    aspect-ratio="4/3"
-                    cover
-                />
-            </v-col>
+  <v-card 
+    elevation="6" 
+    class="post-destaque-card rounded-xl overflow-hidden" 
+  >
+    <v-row class="ma-0" no-gutters>
+      <v-col cols="12" md="4" class="pa-0">
+        <v-img
+          :src="postDestaque?.post_url || '/placeholder.png'"
+          class="h-md-100"
+          style="max-height: 362px; min-height: 200px;"
+          aspect-ratio="4/3"
+          cover
+        />
+      </v-col>
 
-            <v-col cols="12" md="8" class="pa-6 d-flex flex-column justify-space-between">
-                <div>
-                    <v-chip small color="deep-purple accent-4" text-color="white" class="mb-4">
-                        Post em Destaque
-                    </v-chip>
-                    <h3 class="text-h4 font-weight-bold mb-3">{{ postDestaque?.titulo || 'Carregando o post mais recente...' }}</h3>
-                    <v-subtitle class="text-body-2 font-weight-medium mb-3 pb-2">
-                        Autor(a): {{ postDestaque?.autor || 'Autor desconhecido' }}
-                    </v-subtitle>
-                    <br>
-                    <div class="d-flex flex-wrap gap-2 mb-4">
-                        <v-chip
-                            v-for="(tag, index) in (postDestaque?.hashtags || '').split(',').filter(t => t.trim())"
-                            :key="`tag-${index}`"
-                            size="small"
-                            color="deep-purple accent-3"
-                            text-color="white"
-                        >
-                            #{{ tag.trim() }}
-                        </v-chip>
-                    </div>
-                    <p class="text-body-2 opacity-80" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"
-                        v-html="postDestaque?.conteudo || 'Aguarde enquanto buscamos o post mais recente para você.'">
-                    </p>
-                </div>
+      <v-col cols="12" md="8" class="pa-4 pa-sm-6 d-flex flex-column justify-space-between">
+        <div>
+          <v-chip size="small" class="destaque-tag mb-2">
+            Post em Destaque
+          </v-chip>
+          
+          <h3 class="destaque-title text-h5 text-sm-h4 font-weight-bold mb-2">
+            {{ postDestaque?.titulo || 'Carregando o post mais recente...' }}
+          </h3>
+          
+          <div class="destaque-meta text-body-2 font-weight-medium mb-2 pb-2">
+            Autor(a): {{ postDestaque?.autor || 'Autor desconhecido' }}
+          </div>
+          
+          <div class="d-flex flex-wrap gap-2 mb-2">
+            <v-chip
+              v-for="(tag, index) in (postDestaque?.hashtags || '').split(',').filter(t => t.trim())"
+              :key="`tag-${index}`"
+              size="small"
+              class="hashtag-card"
+            >
+              #{{ tag.trim() }}
+            </v-chip>
+          </div>
+          
+          <p class="destaque-excerpt text-body-2" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"
+            v-html="postDestaque?.conteudo || 'Aguarde enquanto buscamos o post mais recente para você.'">
+          </p>
+        </div>
 
-                <div class="d-flex align-center justify-space-between mt-6">
-                    <div class="d-flex align-center" style="gap: 12px;">
-                        <div class="d-flex align-center position-relative">
-                            <v-btn 
-                                title="Curtir" 
-                                icon 
-                                :color="liked ? 'red' : undefined" 
-                                @click="toggleLike" 
-                                :aria-pressed="String(liked)"
-                                style="z-index: 2;"
-                            >
-                                <v-icon>{{ liked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
-                            </v-btn>
+        <div class="d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between mt-6 gap-4">
+          <div class="d-flex align-center flex-wrap" style="gap: 8px;">
+            <div class="d-flex align-center position-relative">
+              <v-btn 
+                title="Curtir" 
+                icon 
+                density="comfortable"
+                :color="liked ? 'error' : 'secondary'" 
+                @click="toggleLike" 
+                :aria-pressed="String(liked)"
+                style="z-index: 2;"
+                variant="flat"
+              >
+                <v-icon :color="liked ? '#FFFDF9' : ''">{{ liked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+              </v-btn>
 
-                            <div 
-                                class="border py-1 pr-4 pl-6 rounded-e-pill text-subtitle-2 font-weight-bold text-grey-darken-2"
-                                :style="[
-                                { marginBackground: '#f5f5f5', marginLeft: '-20px', zIndex: 1 },
-                                liked ? { borderColor: '#f44336 !important', color: '#d32f2f !important', backgroundColor: '#ffebee' } : {}
-                                ]"
-                            >
-                                {{ likesCount }}
-                            </div>
-                        </div>
-                        <v-btn title="Visualizar" icon color="blue" @click="irParaPost(postDestaque)">
-                            <v-icon>mdi-eye</v-icon>
-                        </v-btn>
-                        <v-btn title="Compartilhar" icon @click="compartilhar(postDestaque)">
-                            <v-icon>mdi-share-variant</v-icon>
-                        </v-btn>
-                        <v-snackbar v-model="snackbar" timeout="2500" color="success" rounded="xl">
-                            <div class="d-flex align-center">
-                                <v-icon class="mr-2">
-                                mdi-check-circle
-                                </v-icon>
-                                <span>Link copiado para área de transferência!</span>
-                            </div>
-                        </v-snackbar>
-                    </div>
+              <div 
+                class="like-counter py-1 pr-4 pl-6 rounded-e-pill text-subtitle-2 font-weight-bold"
+                :style="[
+                  { marginLeft: '-20px', zIndex: 1 },
+                  liked ? { borderColor: '#f44336 !important', color: '#d32f2f !important', backgroundColor: '#ffebee' } : {}
+                ]"
+              >
+                {{ likesCount }}
+              </div>
+            </div>
+            
+            <v-btn title="Visualizar" icon density="comfortable" color="primary" variant="flat" @click="irParaPost(postDestaque)">
+              <v-icon color="#FFFDF9">mdi-eye</v-icon>
+            </v-btn>
 
-                    <div class="text-body-small opacity-70">
-                        {{ postDestaque?.data ? new Date(postDestaque.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '' }}
-                    </div>
-                </div>
-            </v-col>
-        </v-row>
-    </v-card>
+            <v-btn title="Compartilhar" color="secondary" variant="outlined" icon density="comfortable" @click="compartilhar(postDestaque)">
+              <v-icon>mdi-share-variant</v-icon>
+            </v-btn>
+            
+            <v-snackbar v-model="snackbar" timeout="2500" color="success" rounded="xl">
+              <div class="d-flex align-center">
+                <v-icon class="mr-2">mdi-check-circle</v-icon>
+                <span>Link copiado para área de transferência!</span>
+              </div>
+            </v-snackbar>
+          </div>
+
+          <div class="destaque-data text-caption text-sm-body-2 align-self-end align-self-sm-center">
+            {{ postDestaque?.data ? new Date(postDestaque.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '' }}
+          </div>
+        </div>
+      </v-col>
+    </v-row>
+  </v-card>
 </template>
 
 <script setup lang="ts">
@@ -112,7 +123,6 @@ const loadPostDestaque = async () => {
         postDestaque.value = maisRecente
         likesCount.value = Number(maisRecente.likes_count ?? 0)
 
-        // Configura o preview da página inicial com a imagem do destaque
         useSeoMeta({
             title: 'Meu Blog - Página Inicial',
             ogTitle: maisRecente.titulo,
@@ -184,12 +194,10 @@ const compartilhar = async (currentPost: any) => {
     });
 
     await navigator.clipboard.write([clipboardItem]);
-    
     snackbar.value = true;
 
   } catch (err) {
     console.error("Falha ao copiar link inteligente:", err);
-    
     try {
       await navigator.clipboard.writeText(urlDoPost);
       snackbar.value = true;
@@ -211,12 +219,66 @@ onMounted(() => {
 </script>
 
 <style scoped>
-    .text-body-2 :deep(span) {
-    background-color: transparent !important;
-    }
+.post-destaque-card {
+  /* 🌟 FUNDO MARFIM/BEGE CLARO PREMIUM */
+  background: #FFFDF9 !important; 
+  /* Moldura bem desenhada em Dourado */
+  border: 2px solid rgb(var(--v-theme-primary)) !important;
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.45) !important;
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+}
 
-    .text-body-2 :deep(*) {
-    background: transparent !important;
-    background-color: transparent !important;
+.post-destaque-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 15px rgba(234, 168, 81, 0.15) !important;
+}
+
+/* CHIPS / TAG DE DESTAQUE */
+.destaque-tag {
+  background: rgba(105, 75, 179, 0.1) !important;
+  color: rgb(var(--v-theme-secondary)) !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* HASHTAGS */
+.hashtag-card {
+  background: #231E1A !important;
+  color: #FFFDF9 !important;
+  font-weight: 600;
+}
+
+/* TEXTOS E HIERARQUIA */
+.destaque-title {
+  color: #1A1512 !important;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.destaque-meta {
+  color: #5C524A !important; 
+}
+
+.destaque-excerpt {
+  color: #38312C !important; 
+  line-height: 1.6;
+}
+
+.destaque-data {
+  color: #5C524A !important;
+  font-weight: 500;
+}
+
+/* Contador de Curtidas */
+.like-counter {
+  border: 1px solid rgba(35, 30, 26, 0.15);
+  color: #38312C;
+  background-color: rgba(35, 30, 26, 0.03);
+}
+
+.text-body-2 :deep(span),
+.text-body-2 :deep(*) {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 </style>

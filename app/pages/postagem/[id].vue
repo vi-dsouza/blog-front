@@ -1,7 +1,7 @@
 <template>
   <Banner />
   <v-main class="bg-grey-lighten-4">
-    <v-container width="100%" class="mt-6 mb-16">
+    <v-container fluid class="mt-6 mb-16 px-2 px-sm-4" style="max-width: 100%;">
       <v-row justify="center">
         <v-col v-if="loading" cols="12" class="text-center py-12">
           <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
@@ -12,7 +12,7 @@
           <v-btn color="primary" class="mt-4" @click="voltar">Voltar para os posts</v-btn>
         </v-col>
 
-        <v-col v-else cols="12" md="10">
+        <v-col v-else cols="12" md="10" lg="8">
           
           <v-btn 
             variant="text" 
@@ -23,7 +23,7 @@
             Voltar para os posts
           </v-btn>
 
-          <v-card flat class="rounded-xl overflow-hidden pa-6 pa-md-12 elevation-1">
+          <v-card flat class="rounded-xl overflow-hidden pa-4 pa-sm-8 pa-md-12 elevation-1">
             
             <div class="d-flex align-center flex-wrap gap-2 mb-4">
               <v-chip
@@ -37,60 +37,65 @@
                 #{{ tag }}
               </v-chip>
               
-              <span class="text-caption text-grey-darken-1 ml-2">
+              <span class="text-caption text-grey-darken-1">
                 {{ formatDate(post.data) }}
               </span>
             </div>
 
-            <h1 class="text-h3 font-weight-bold text-grey-darken-4 mb-6 leading-tight">
+            <h1 class="text-h5 text-sm-h4 text-md-h3 font-weight-bold text-grey-darken-4 mb-6 leading-tight">
               {{ post.titulo }}
             </h1>
 
-            <v-row align="center" class="mb-8 bg-grey-lighten-5 rounded-lg pa-3 mx-0">
-              <v-avatar size="48" class="mr-3" color="grey-lighten-2">
-                <v-img v-if="post.autor_foto" :src="post.autor_foto" :alt="post.autor"></v-img>
-                <v-icon v-else>mdi-account</v-icon>
-              </v-avatar>
-              <div>
-                <div class="text-subtitle-2 font-weight-bold text-grey-darken-3">
-                  {{ post.autor || 'Autor Anônimo' }}
-                </div>
-                <div class="text-caption text-grey">
-                  Autor(a) do Artigo
+            <div class="d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between mb-8 bg-grey-lighten-5 rounded-lg pa-4 gap-4">
+              <div class="d-flex align-center">
+                <v-avatar size="48" class="mr-3" color="grey-lighten-2">
+                  <v-img v-if="post.autor_foto" :src="post.autor_foto" :alt="post.autor"></v-img>
+                  <v-icon v-else>mdi-account</v-icon>
+                </v-avatar>
+                <div>
+                  <div class="text-subtitle-2 font-weight-bold text-grey-darken-3">
+                    {{ post.autor || 'Autor Anônimo' }}
+                  </div>
+                  <div class="text-caption text-grey">
+                    Autor(a) do Artigo
+                  </div>
                 </div>
               </div>
-              <v-spacer></v-spacer>
-              <div class="d-flex align-center position-relative">
-                <v-btn 
-                  title="Curtir" 
-                  icon 
-                  :color="liked ? 'red' : undefined" 
-                  @click="toggleLike" 
-                  :aria-pressed="String(liked)"
-                  style="z-index: 2;"
-                >
-                  <v-icon>{{ liked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+
+              <div class="d-flex align-center justify-space-between w-100 w-sm-auto pt-2 pt-sm-0 border-top-mobile">
+                <div class="d-flex align-center position-relative">
+                  <v-btn 
+                    title="Curtir" 
+                    icon 
+                    density="comfortable"
+                    :color="liked ? 'red' : undefined" 
+                    @click="toggleLike" 
+                    :aria-pressed="String(liked)"
+                    style="z-index: 2;"
+                  >
+                    <v-icon>{{ liked ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
                   </v-btn>
 
-                <div 
-                  class="border py-1 pr-4 pl-6 rounded-e-pill text-subtitle-2 font-weight-bold text-grey-darken-2"
-                  :style="[
-                  { marginBackground: '#f5f5f5', marginLeft: '-20px', zIndex: 1 },
-                  liked ? { borderColor: '#f44336 !important', color: '#d32f2f !important', backgroundColor: '#ffebee' } : {}
-                  ]"
-                >
-                  {{ likesCount }}
+                  <div 
+                    class="border py-1 pr-4 pl-6 rounded-e-pill text-subtitle-2 font-weight-bold text-grey-darken-2"
+                    :style="[
+                      { marginBackground: '#f5f5f5', marginLeft: '-20px', zIndex: 1 },
+                      liked ? { borderColor: '#f44336 !important', color: '#d32f2f !important', backgroundColor: '#ffebee' } : {}
+                    ]"
+                  >
+                    {{ likesCount }}
+                  </div>
                 </div>
+                
+                <v-btn title="Compartilhar" icon density="comfortable" class="ml-2" @click="compartilhar(post)">
+                  <v-icon>mdi-share-variant</v-icon>
+                </v-btn>
               </div>
-              <v-btn title="Compartilhar" icon @click="compartilhar(post)">
-                <v-icon>mdi-share-variant</v-icon>
-              </v-btn>
-            </v-row>
+            </div>
+
             <v-snackbar v-model="snackbar" timeout="2500" color="success" rounded="xl">
               <div class="d-flex align-center">
-                <v-icon class="mr-2">
-                  mdi-check-circle
-                </v-icon>
+                <v-icon class="mr-2">mdi-check-circle</v-icon>
                 <span>Link copiado para área de transferência!</span>
               </div>
             </v-snackbar>
@@ -98,12 +103,11 @@
             <v-img
               :src="post.post_url || '/placeholder.png'"
               :alt="post.titulo"
-              height="450"
+              class="rounded-xl mb-8 post-main-image"
               contain
-              class="rounded-xl mb-8"
             ></v-img>
 
-            <div class="post-content text-body-1 text-grey-darken-3 line-height-relaxed" v-html="post.conteudo">
+            <div class="post-content text-body-1 text-sm-h6 text-grey-darken-3 line-height-relaxed" v-html="post.conteudo">
             </div>
 
           </v-card>
@@ -267,13 +271,33 @@ onMounted(loadPostData);
 </script>
 
 <style scoped>
+.post-main-image {
+  width: 100%;
+  height: auto;
+  min-height: 220px;
+  max-height: 480px;
+}
+
 .line-height-relaxed {
   line-height: 1.8 !important;
-  font-size: 1.15rem !important;
+  font-size: 1.05rem !important;
   letter-spacing: 0.01rem;
   white-space: pre-line;
 }
+
+@media (min-width: 600px) {
+  .line-height-relaxed {
+    font-size: 1.15rem !important;
+  }
+}
+
 .leading-tight {
   line-height: 1.25;
+}
+
+@media (max-width: 599px) {
+  .border-top-mobile {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
 }
 </style>

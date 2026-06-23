@@ -4,7 +4,7 @@
       <v-img
         :src="bannerUrl"
         alt="Banner do site"
-        class="banner-image rounded-lg"
+        class="banner-image"
         cover
       />
     </v-container>
