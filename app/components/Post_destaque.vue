@@ -16,15 +16,15 @@
 
       <v-col cols="12" md="8" class="pa-4 pa-sm-6 d-flex flex-column justify-space-between">
         <div>
-          <v-chip size="small" class="destaque-tag mb-2">
+          <v-chip size="small" class="fonte destaque-tag mb-2">
             Post em Destaque
           </v-chip>
           
-          <h3 class="destaque-title text-h5 text-sm-h4 font-weight-bold mb-2">
+          <h3 class="fonte destaque-title text-h5 text-sm-h4 font-weight-bold mb-2">
             {{ postDestaque?.titulo || 'Carregando o post mais recente...' }}
           </h3>
           
-          <div class="destaque-meta text-body-2 font-weight-medium mb-2 pb-2">
+          <div class="fonte destaque-meta text-body-2 font-weight-medium mb-2 pb-2">
             Autor(a): {{ postDestaque?.autor || 'Autor desconhecido' }}
           </div>
           
@@ -33,13 +33,13 @@
               v-for="(tag, index) in (postDestaque?.hashtags || '').split(',').filter(t => t.trim())"
               :key="`tag-${index}`"
               size="small"
-              class="hashtag-card"
+              class="fonte hashtag-card"
             >
               #{{ tag.trim() }}
             </v-chip>
           </div>
           
-          <p class="destaque-excerpt text-body-2" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"
+          <p class="fonte destaque-excerpt text-body-2" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"
             v-html="postDestaque?.conteudo || 'Aguarde enquanto buscamos o post mais recente para você.'">
           </p>
         </div>
@@ -61,7 +61,7 @@
               </v-btn>
 
               <div 
-                class="like-counter py-1 pr-4 pl-6 rounded-e-pill text-subtitle-2 font-weight-bold"
+                class="fonte like-counter py-1 pr-4 pl-6 rounded-e-pill text-subtitle-2 font-weight-bold"
                 :style="[
                   { marginLeft: '-20px', zIndex: 1 },
                   liked ? { borderColor: '#f44336 !important', color: '#d32f2f !important', backgroundColor: '#ffebee' } : {}
@@ -87,7 +87,7 @@
             </v-snackbar>
           </div>
 
-          <div class="destaque-data text-caption text-sm-body-2 align-self-end align-self-sm-center">
+          <div class="fonte destaque-data text-caption text-sm-body-2 align-self-end align-self-sm-center">
             {{ postDestaque?.data ? new Date(postDestaque.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '' }}
           </div>
         </div>
@@ -219,6 +219,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
 .post-destaque-card {
   /* 🌟 FUNDO MARFIM/BEGE CLARO PREMIUM */
   background: #FFFDF9 !important; 

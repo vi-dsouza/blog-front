@@ -1,17 +1,17 @@
 <template>
   <div class="w-100">
     <v-container class="pa-0">
-      <v-card-title class="text-h6 text-sm-h5 px-0 pb-2">
+      <v-card-title class="fonte text-h6 text-sm-h5 px-0 pb-2">
         Gostou do blog?
       </v-card-title>
-      <v-card-text class="px-0 pb-4 text-body-2 text-grey-darken-1 lh-relaxed">
+      <v-card-text class="fonte px-0 pb-4 text-body-2 text-grey-darken-1 lh-relaxed">
         Inscreva-se para receber as últimas atualizações e novidades diretamente no seu e-mail!
       </v-card-text>
       <v-card-actions class="pa-0 d-flex">
         <v-btn 
           color="secondary" 
           variant="flat"
-          class="w-100 w-sm-auto subscribe-button rounded-lg font-weight-bold" 
+          class="fonte w-100 w-sm-auto subscribe-button rounded-lg font-weight-bold" 
           @click="abrirModal"
         >
           Inscrever-se
@@ -20,11 +20,11 @@
     </v-container>
 
     <v-dialog v-model="dialog" max-width="450px" :persistent="store.carregando">
-      <v-card class="rounded-xl" color="branco">
-        <v-card-title class="text-h6 text-sm-h5 mx-2 my-0 mt-4 font-weight-bold">
+      <v-card class="rounded-xl" color="branco" style="border: 2px solid rgb(var(--v-theme-surface));">
+        <v-card-title class="fonte text-h6 text-sm-h5 mx-2 my-0 mt-4 font-weight-bold">
           Newsletter Entre Ideias
         </v-card-title>
-        <v-card-text class="pt-1 px-6 pb-0 text-body-2 text-grey-darken-1">
+        <v-card-text class="fonte pt-1 px-6 pb-0 text-body-2 text-grey-darken-1">
           <p class="ma-0">Inscreva-se e fique por dentro de novos posts</p>
         </v-card-text>
         <v-divider style="margin-top: 16px;; opacity: 0.3;" color="secondary"></v-divider>
@@ -35,9 +35,9 @@
           </v-alert>
 
           <div v-if="store.sucesso" class="text-center py-4">
-            <v-icon color="success" size="56" class="mb-2">mdi-email-check-outline</v-icon>
-            <h3 class="text-h6 font-weight-bold mb-1">Quase lá!</h3>
-            <p class="text-body-2 text-grey-darken-1">
+            <v-icon color="success" size="56" class="fonte mb-2">mdi-email-check-outline</v-icon>
+            <h3 class="fonte text-h6 font-weight-bold mb-1">Quase lá!</h3>
+            <p class="fonte text-body-2 text-grey-darken-1">
               Enviamos um link de confirmação para o seu e-mail. Acesse-o para ativar sua inscrição.
             </p>
           </div>
@@ -49,7 +49,7 @@
               variant="outlined" 
               density="comfortable"
               required 
-              class="mb-3"
+              class="fonte mb-3"
               :disabled="store.carregando"
             ></v-text-field>
             
@@ -60,7 +60,7 @@
               variant="outlined" 
               density="comfortable"
               required
-              class="mb-2"
+              class="fonte mb-2"
               :disabled="store.carregando"
             ></v-text-field>
             
@@ -75,7 +75,7 @@
               :disabled="store.carregando"
             >
               <template v-slot:label>
-                <div class="text-caption leading-tight text-grey-darken-2">
+                <div class="fonte text-caption leading-tight text-grey-darken-2">
                   Aceito receber novidades e posts do Entre Ideias de acordo com a 
                   <a 
                     href="/TermosCondicoes" 
@@ -98,11 +98,11 @@
             <v-btn color="primary" variant="flat" class="px-6 rounded-lg" @click="dialog = false">Fechar</v-btn>
           </template>
           <template v-else>
-            <v-btn variant="text" class="rounded-lg" @click="dialog = false" :disabled="store.carregando">Cancelar</v-btn>
+            <v-btn variant="text" class="fonte rounded-lg" @click="dialog = false" :disabled="store.carregando">Cancelar</v-btn>
             <v-btn 
               color="secondary" 
               variant="flat"
-              class="px-4 rounded-lg"
+              class="fonte px-4 rounded-lg"
               @click="enviarInscricao"
               :loading="store.carregando"
               :disabled="!form.nome || !form.email || !form.consentimento_lgpd"
@@ -144,3 +144,9 @@ const enviarInscricao = async () => {
     }
 }
 </script>
+
+<style>
+.fonte{
+  font-family: 'Georgia', serif !important;
+}
+</style>

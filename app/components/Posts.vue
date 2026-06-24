@@ -22,9 +22,9 @@
 
           <v-col cols="12" md="8" class="pa-2 pa-sm-4">
             <v-card-text class="pa-0">
-              <div class="post-title text-h6 text-sm-h5 text-septenary">{{ post?.titulo }}</div>
-              <div class="post-meta text-caption text-sm-body-2">{{ post?.autor }} • {{ formatDate(post?.data) }}</div>
-              <div class="post-excerpt text-body-2 text-sm-body-1" v-html="post?.conteudo"></div>
+              <div class="fonte post-title text-h6 text-sm-h5 text-septenary">{{ post?.titulo }}</div>
+              <div class="fonte post-meta text-caption text-sm-body-2">{{ post?.autor }} • {{ formatDate(post?.data) }}</div>
+              <div class="fonte post-excerpt text-body-2 text-sm-body-1" v-html="post?.conteudo"></div>
             </v-card-text>
           </v-col>
         </v-row>
@@ -33,7 +33,7 @@
 
         <v-card-actions class="px-4 py-2">
           <v-spacer />
-          <v-btn color="primary" variant="text" class="font-weight-bold" @click="irParaPost(post)">Leia mais</v-btn>
+          <v-btn color="primary" variant="text" class="fonte font-weight-bold" @click="irParaPost(post)">Leia mais</v-btn>
         </v-card-actions>
       </v-card>
     </div>
@@ -89,6 +89,10 @@ onMounted(loadPosts)
 </script>
 
 <style scoped>
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
+
 .posts-grid {
   display: grid;
   gap: 24px;

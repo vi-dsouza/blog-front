@@ -5,7 +5,7 @@
         <v-card
           v-for="(tag, index) in repeatedTags"
           :key="`${tag}-${index}`"
-          class="tag-card d-flex align-center justify-center text-uppercase font-weight-bold"
+          class="fonte tag-card d-flex align-center justify-center text-uppercase font-weight-bold"
           elevation="0"
         >
           <v-icon size="small" color="primary" class="mr-2">mdi-rhombus-medium</v-icon>
@@ -32,6 +32,10 @@ onMounted(loadTags)
 </script>
 
 <style scoped>
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
+
 .tag-carousel-wrapper {
   width: 100%;
   overflow: hidden;

@@ -1,5 +1,5 @@
 <template>
-  <v-main>
+  <v-main style="background: rgb(var(--v-theme-preto));">
     <Banner />
     <Tags />
     <Descricao />
@@ -11,7 +11,7 @@
         <v-card 
           elevation="0" 
           width="100%" 
-          class="pa-4 rounded-xl mt-md-10 order-1 order-md-1 mb-6"
+          class="fonte pa-4 rounded-xl mt-md-10 order-1 order-md-1 mb-6"
           style="
             background: rgba(47, 47, 56, 0.4) !important; 
             backdrop-filter: blur(16px);
@@ -39,7 +39,7 @@
             class="busca-custom"
             style="background: rgba(0, 0, 0, 0.25) !important; border-radius: 8px;"
           >
-            <template v-slot:selection="{ item }">
+            <template v-slot:selection="{ item }" class="fonte">
               <div class="text-body-1 text-truncate text-septenary">
                 {{ item.title }}
               </div>
@@ -64,13 +64,13 @@
                 <v-img :src="autores[0].foto_url" alt="Foto da autora" cover></v-img>
               </v-avatar>
               
-              <p class="text-subtitle-1 font-weight-light text-septenary text-center lh-tight mt-2" style="letter-spacing: 0.5px;">
+              <p class="fonte text-subtitle-1 font-weight-light text-septenary text-center lh-tight mt-2" style="letter-spacing: 0.5px;">
                 {{ autores[0].nome }}
               </p>
             </v-col>
 
             <v-col cols="12" class="d-flex flex-column gap-2">
-              <v-card-text class="text-body-2 text-center pa-0 text-septenary lh-relaxed" style="opacity: 0.75;">
+              <v-card-text class="fonte text-body-2 text-center pa-0 text-septenary lh-relaxed" style="opacity: 0.75;">
                 {{ autores[0].biografia || 'Nenhuma biografia informada.' }}
               </v-card-text>
             </v-col>
@@ -100,11 +100,11 @@
         <PostDestaque v-if="!postSelecionado" class="mb-6 mt-md-10"/>
         <v-divider v-if="!postSelecionado" class="my-1 pb-4 mt-8 " thickness="1" style="width: 100%; border-color: rgb(var(--v-theme-branco)) !important;"></v-divider>
         <div v-if="!postSelecionado" class="px-2 mb-2 mx-2">
-          <h4 class="text-h6 font-weight-light text-septenary" style="letter-spacing: 0.5px; opacity: 0.9;">
+          <h4 class="fonte text-h6 font-weight-light text-septenary" style="letter-spacing: 0.5px; opacity: 0.9;">
             Últimas Publicações
           </h4>
         </div>
-        <Posts :filtro-titulo="postSelecionado?.titulo" class="mb-2 mt-10 mt-md-10"/>
+        <Posts :filtro-titulo="postSelecionado?.titulo" class="mb-2 mt-md-10"/>
       </v-col>
 
     </v-row>
@@ -159,6 +159,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
+
 .busca-custom :deep(.v-field) {
   height: 40px !important;
   min-height: 40px !important;

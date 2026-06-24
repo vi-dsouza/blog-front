@@ -19,18 +19,18 @@
           color="primary"
           variant="tonal"
           size="small"
-          class="text-uppercase font-weight-bold mb-4 px-3"
+          class="fonte text-uppercase font-weight-bold mb-4 px-3"
           letter-spacing="1"
         >
           Editorial
         </v-chip>
 
-        <v-card-title class="text-h5 text-sm-h4 font-weight-light text-septenary pa-0 mb-4" style="letter-spacing: -0.5px !important;">
+        <v-card-title class="fonte text-h5 text-sm-h4 font-weight-light text-septenary pa-0 mb-4" style="letter-spacing: -0.5px !important;">
           Descrição do Blog
         </v-card-title>
 
         <v-card-text 
-          class="text-body-1 text-sm-h6 text-septenary pa-0 pl-4 font-weight-light"
+          class="fonte text-body-1 text-sm-h6 text-septenary pa-0 pl-4 font-weight-light"
           style="
             border-left: 3px solid rgb(var(--v-theme-primary)); 
             line-height: 1.6 !important; 
@@ -62,6 +62,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
 
 @keyframes fadeInUp {
   from {

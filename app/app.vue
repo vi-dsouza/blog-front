@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app theme="entreIdeiasTheme">
     <NuxtPage />
     <GlobalAlert />
   </v-app>

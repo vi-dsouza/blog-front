@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app theme="light">
     <MenuLateral />
 
     <v-main class="main-scroll">
