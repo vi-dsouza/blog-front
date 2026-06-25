@@ -3,9 +3,9 @@
     <v-container fluid class="pa-4 d-flex justify-center">
       <v-card 
         elevation="0" 
-        class="mx-auto rounded-xl overflow-hidden pa-6 card-elegante-animado" 
-        min-height="220px"
-        width="92%"
+        class="mx-auto rounded-xl overflow-hidden pa-4 card-elegante-animado" 
+        min-height="200px"
+        width="96%"
         style="
           background: rgba(47, 47, 56, 0.4); 
           backdrop-filter: blur(16px); 

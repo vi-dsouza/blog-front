@@ -10,7 +10,7 @@
         
         <v-card 
           elevation="0" 
-          width="100%" 
+          width="94%" 
           class="fonte pa-4 rounded-xl mt-md-10 order-1 order-md-1 mb-6"
           style="
             background: rgba(47, 47, 56, 0.4) !important; 
@@ -49,7 +49,7 @@
 
         <v-card 
           elevation="0" 
-          width="100%" 
+          width="94%" 
           class="pa-4 rounded-xl order-3 order-md-2 mt-4 mt-md-0 mb-6" 
           style="
             background: rgba(47, 47, 56, 0.4) !important; 
@@ -82,9 +82,9 @@
         </v-card>
 
         <v-card 
-          width="100%" 
+          width="94%" 
           elevation="0" 
-          class="pa-4 rounded-xl order-4 order-md-3" 
+          class="pa-4 rounded-xl order-4 order-md-3 mb-8" 
           style="
             background: rgba(47, 47, 56, 0.4) !important; 
             backdrop-filter: blur(16px);
@@ -96,7 +96,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="8" class="d-flex flex-column gap-4 coluna-conteudo order-2 order-md-2 pt-2">
+      <v-col cols="12" md="8" class="d-flex flex-column gap-4 coluna-conteudo order-2 order-md-2 pt-2" >
         <PostDestaque v-if="!postSelecionado" class="mb-6 mt-md-10"/>
         <v-divider v-if="!postSelecionado" class="my-1 pb-4 mt-8 " thickness="1" style="width: 100%; border-color: rgb(var(--v-theme-branco)) !important;"></v-divider>
         <div v-if="!postSelecionado" class="px-2 mb-2 mx-2">

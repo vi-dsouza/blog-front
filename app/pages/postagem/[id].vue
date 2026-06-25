@@ -109,8 +109,7 @@
               contain
             ></v-img>
 
-            <div class="fonte post-content text-body-1 text-sm-h6 text-black line-height-relaxed" v-html="post.conteudo">
-            </div>
+            <div class="fonte post-content" v-html="post.conteudo"></div>
 
           </v-card>
 
@@ -123,10 +122,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { usePostagemStore } from '@/stores/postsStore';
 import Banner from '@/components/Banner.vue';
 import Footer from '@/components/Footer.vue';
-import axios from 'axios'; // Importação do axios necessária para falar com o Flask
 
 const route = useRoute(); 
 const postagemStore = usePostagemStore();
@@ -155,22 +154,17 @@ const loadPostData = async () => {
       }
       
       post.value = postEncontrado;
-
       likesCount.value = postEncontrado.likes_count || 0;
 
-      // ====== AQUI CONFIGURAMOS A IMAGEM E O LINK INTELIGENTE ======
       useSeoMeta({
         title: postEncontrado.titulo,
         ogTitle: postEncontrado.titulo,
         description: 'Confira este artigo incrível no nosso blog!',
         ogDescription: 'Confira este artigo incrível no nosso blog!',
-        // Esta é a tag mágica que puxa a imagem pequena/preview para o link!
         ogImage: postEncontrado.post_url || 'http://localhost:3000/placeholder.png',
         twitterCard: 'summary_large_image',
       });
-      // ===============================================================
 
-      // [INTEGRAÇÃO]: Verifica no LocalStorage se este navegador já curtiu o post atual
       const curtidos = JSON.parse(localStorage.getItem('blog_liked_posts') || '[]');
       liked.value = curtidos.includes(idDoPost);
     }
@@ -199,7 +193,6 @@ async function toggleLike() {
   const action = liked.value ? 'unlike' : 'like';
 
   try {
-    // Agora chama perfeitamente a Store passando os parâmetros isolados
     const resultado = await postagemStore.alternarCurtidaNoServidor(id_post, action);
 
     if (resultado && resultado.success) {
@@ -240,7 +233,6 @@ const compartilhar = async (currentPost: any) => {
 
   try {
     const htmlLink = `<a href="${urlDoPost}" target="_blank">${currentPost.titulo}</a>`;
-
     const blobHtml = new Blob([htmlLink], { type: 'text/html' });
     const blobText = new Blob([urlDoPost], { type: 'text/plain' });
 
@@ -250,12 +242,9 @@ const compartilhar = async (currentPost: any) => {
     });
 
     await navigator.clipboard.write([clipboardItem]);
-    
     snackbar.value = true;
-
   } catch (err) {
     console.error("Falha ao copiar link inteligente:", err);
-    
     try {
       await navigator.clipboard.writeText(urlDoPost);
       snackbar.value = true;
@@ -283,23 +272,61 @@ onMounted(loadPostData);
   max-height: 480px;
 }
 
-.line-height-relaxed {
+.post-content {
+  color: #231E1A !important;
   line-height: 1.8 !important;
   font-size: 1.05rem !important;
   letter-spacing: 0.01rem;
-  white-space: pre-line;
+}
+
+.post-content :deep(p) {
+  margin-bottom: 1.5rem !important;
+}
+
+.post-content :deep(h1),
+.post-content :deep(h2),
+.post-content :deep(h3),
+.post-content :deep(h4) {
+  color: #1A1512;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.post-content :deep(h2) { font-size: 1.75rem; }
+.post-content :deep(h3) { font-size: 1.4rem; }
+.post-content :deep(ol),
+.post-content :deep(ul) {
+  margin-bottom: 1.5rem !important;
+  padding-left: 2rem !important; 
+}
+
+.post-content :deep(li) {
+  margin-bottom: 0.5rem !important;
+}
+
+.post-content :deep(a) {
+  color: #EAA851;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(234, 168, 81, 0.3);
+}
+
+.post-content :deep(a:hover) {
+  border-bottom-color: #EAA851;
+}
+
+@media (min-width: 600px) {
+  .post-content {
+    font-size: 1.15rem !important;
+  }
 }
 
 .like-counter {
   border: 1px solid rgba(35, 30, 26, 0.15);
   color: #38312C;
   background-color: rgba(35, 30, 26, 0.03);
-}
-
-@media (min-width: 600px) {
-  .line-height-relaxed {
-    font-size: 1.15rem !important;
-  }
 }
 
 .leading-tight {

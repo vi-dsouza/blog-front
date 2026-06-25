@@ -3,7 +3,7 @@
     <MenuLateral />
 
     <v-main class="main-scroll">
-      <v-container fluid class="pa-4 pa-sm-8">
+      <v-container fluid class="pa-4 pa-sm-8" >
         
         <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
           Postagens
@@ -73,6 +73,7 @@
                 </v-col>
                 
                 <v-col cols="12" md="4">
+                  <label class="editor-label text-subtitle-2 mb-2 d-block">Capa do Post</label>
                   <v-sheet
                     border="dashed md"
                     color="grey-lighten-4"
@@ -80,7 +81,6 @@
                     class="d-flex flex-column align-center justify-center position-relative rounded-lg cursor-pointer hover-effect overflow-hidden"
                     @click="$refs.fileInput.click()"
                   >
-                    <!-- SEM IMAGEM -->
                     <template v-if="!(previewImagem || editItem.post_url)">
                       <v-icon size="40" color="#7B5CFF" class="mb-2">mdi-cloud-upload</v-icon>
                       <span class="text-subtitle-2 font-weight-bold text-center px-2">
@@ -88,7 +88,6 @@
                       </span>
                     </template>
                     
-                    <!-- COM IMAGEM -->
                     <v-img 
                       v-if="previewImagem || editItem.post_url"
                       :src="previewImagem || editItem.post_url"
@@ -106,7 +105,6 @@
                       </div>
                     </v-img>
 
-                    <!-- INPUT ORIGINAL (mantido) -->
                     <v-file-input 
                       ref="fileInput" 
                       class="d-none" 
@@ -117,7 +115,16 @@
                 </v-col>
 
                 <v-col cols="12" md="8">
-                  <v-textarea v-model="editItem.conteudo" label="Conteúdo" variant="outlined" rows="7" auto-grow />
+                  <div class="editor-wrapper">
+                    <label class="editor-label text-subtitle-2 mb-2 d-block">Conteúdo do Post</label>
+                    
+                    <QuillEditor 
+                      v-model:content="editItem.conteudo" 
+                      contentType="html" 
+                      theme="snow"
+                      placeholder="Escreva e estilize o conteúdo do seu post aqui..."
+                    />
+                  </div>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -133,15 +140,11 @@
 
         <v-dialog v-model="modalDelete" max-width="450">
           <v-card >
-
-            <!-- TOOLBAR -->
             <v-toolbar flat color="#7B5CFF">
               <v-toolbar-title class="text-white font-weight-bold">
                 Confirmar exclusão
               </v-toolbar-title>
-
               <v-spacer />
-
               <v-btn
                 icon="mdi-close"
                 variant="text"
@@ -150,18 +153,15 @@
               />
             </v-toolbar>
 
-            <!-- CONTEÚDO -->
             <v-card-text class=" pt-4">
               Tem certeza que deseja excluir o post
               <strong>"{{ postParaDeletar?.titulo }}"</strong>?
             </v-card-text>
 
-            <!-- AÇÕES -->
             <v-card-actions class="justify-end pb-4 px-4">
               <v-btn variant="text" color="grey" @click="modalDelete = false">
                 Cancelar
               </v-btn>
-
               <v-btn
                 color="red"
                 variant="flat"
@@ -171,7 +171,6 @@
                 Excluir
               </v-btn>
             </v-card-actions>
-
           </v-card>
         </v-dialog>
 
@@ -184,6 +183,11 @@
 import { ref, onMounted } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue'
 import { usePostagemStore } from '~/stores/postsStore'
+import { useAlertStore } from "~/stores/alert"
+
+// IMPORTAÇÕES DO QUILL EDITOR ADICIONADAS AQUI
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 const postStore = usePostagemStore()
 const search = ref('')
@@ -193,7 +197,6 @@ const modalDelete = ref(false)
 const postParaDeletar = ref<any>(null)
 
 const alertStore = useAlertStore()
-// Controle do Modal e Item em Edição
 const modalEdicao = ref(false)
 const previewImagem = ref<string | null>(null)
 const arquivoNovaFoto = ref<File | null>(null)
@@ -215,7 +218,6 @@ const headers = [
   { title: 'Ações', key: 'acao', sortable: false},
 ]
 
-// CARREGAR POSTS
 const carregarPosts = async () => {
   const data = await postStore.carregarPosts()
   if (data) items.value = Array.isArray(data) ? data : [data]
@@ -223,15 +225,13 @@ const carregarPosts = async () => {
 
 onMounted(carregarPosts)
 
-// ABRIR MODAL COM DADOS
 const abrirEdicao = (item: any) => {
-  editItem.value = { ...item } // Copia os dados para não alterar a tabela antes de salvar
+  editItem.value = { ...item } 
   previewImagem.value = null
   arquivoNovaFoto.value = null
   modalEdicao.value = true
 }
 
-// TRATAR UPLOAD DE FOTO NO MODAL
 const tratarUploadFoto = (event: any) => {
   const file = event.target.files[0]
   if (file) {
@@ -240,17 +240,16 @@ const tratarUploadFoto = (event: any) => {
   }
 }
 
-// SALVAR EDIÇÃO
 const salvarEdicao = async () => {
   try {
     const payload = {
       ...editItem.value,
-      post: arquivoNovaFoto.value // Se for null, o service manterá a antiga
+      post: arquivoNovaFoto.value 
     }
 
     await postStore.atualizarPost(editItem.value.id, payload)
     modalEdicao.value = false
-    alertStore.showSuccess("Postagem atualizada com sucesso!")
+    alertStore.showSuccess("Postagem actualizada com sucesso!")
     await carregarPosts()
   } catch (error) {
     alertStore.showError("Erro ao atualizar postagem.")
@@ -263,7 +262,6 @@ const limparImagem = () => {
   editItem.value.post_url = ''
 }
 
-// DELETAR
 const confirmarDeletar = (item: any) => {
   postParaDeletar.value = item
   modalDelete.value = true
@@ -271,14 +269,66 @@ const confirmarDeletar = (item: any) => {
 
 const deletarPostConfirmado = async () => {
   if (!postParaDeletar.value) return
-
   await postStore.deletarPost(postParaDeletar.value.id)
-
   modalDelete.value = false
   postParaDeletar.value = null
-
   await carregarPosts()
-
   alertStore.showSuccess("Postagem deletada com sucesso!")
 }
 </script>
+
+<style scoped>
+html, body, #__nuxt, #app {
+  height: 100%;
+  margin: 0;
+}
+
+.v-application {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main-scroll {
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.hover-effect {
+  transition: 0.3s;
+  cursor: pointer;
+}
+.hover-effect:hover {
+  background-color: #f3efff !important;
+  border-color: #7B5CFF !important;
+}
+
+.editor-wrapper {
+  --quill-color: #7B5CFF;
+}
+
+.editor-label {
+  color: var(--quill-color);
+  font-weight: 600;
+}
+
+.editor-wrapper :deep(.ql-container.ql-snow) {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  border-color: rgba(0, 0, 0, 0.22);
+  font-size: 1rem;
+  height: 250px; 
+  overflow-y: auto; 
+}
+
+.editor-wrapper :deep(.ql-toolbar.ql-snow) {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-color: rgba(0, 0, 0, 0.22);
+  background-color: #fafafa;
+}
+
+.editor-wrapper :deep(.ql-container:focus-within),
+.editor-wrapper :deep(.ql-toolbar:focus-within) {
+  border-color: var(--quill-color) !important;
+}
+</style>

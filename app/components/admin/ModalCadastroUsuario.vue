@@ -31,12 +31,13 @@
         z-index: 9999;
     }
 
-    .modal {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        min-width: 300px;
-    }
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 700px; /* <--- ESSA LINHA É CRUCIAL PARA DAR ESPAÇO AO FORMULÁRIO */
+}
 
     .fechar {
         margin-top: 10px;

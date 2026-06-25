@@ -1,7 +1,9 @@
 <template>
   <v-card 
     elevation="6" 
-    class="post-destaque-card rounded-xl overflow-hidden" 
+    class="post-destaque-card rounded-xl overflow-hidden cursor-pointer" 
+    v-ripple
+    @click="irParaPost(postDestaque)"
   >
     <v-row class="ma-0" no-gutters>
       <v-col cols="12" md="4" class="pa-0">
@@ -52,7 +54,7 @@
                 icon 
                 density="comfortable"
                 :color="liked ? 'error' : 'secondary'" 
-                @click="toggleLike" 
+                @click.stop="toggleLike" 
                 :aria-pressed="String(liked)"
                 style="z-index: 2;"
                 variant="flat"
@@ -71,11 +73,11 @@
               </div>
             </div>
             
-            <v-btn title="Visualizar" icon density="comfortable" color="primary" variant="flat" @click="irParaPost(postDestaque)">
+            <v-btn title="Visualizar" icon density="comfortable" color="primary" variant="flat" @click.stop="irParaPost(postDestaque)">
               <v-icon color="#FFFDF9">mdi-eye</v-icon>
             </v-btn>
 
-            <v-btn title="Compartilhar" color="secondary" variant="outlined" icon density="comfortable" @click="compartilhar(postDestaque)">
+            <v-btn title="Compartilhar" color="secondary" variant="outlined" icon density="comfortable" @click.stop="compartilhar(postDestaque)">
               <v-icon>mdi-share-variant</v-icon>
             </v-btn>
             
@@ -145,7 +147,6 @@ async function toggleLike() {
 
         if (resultado && resultado.success) {
             likesCount.value = resultado.likes_count;
-            
             liked.value = !liked.value;
 
             let curtidos = JSON.parse(localStorage.getItem('blog_liked_posts') || '[]');
@@ -222,10 +223,13 @@ onMounted(() => {
 .fonte {
   font-family: 'Georgia', serif !important;
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .post-destaque-card {
-  /* 🌟 FUNDO MARFIM/BEGE CLARO PREMIUM */
   background: #FFFDF9 !important; 
-  /* Moldura bem desenhada em Dourado */
   border: 2px solid rgb(var(--v-theme-primary)) !important;
   box-shadow: 0 15px 45px rgba(0, 0, 0, 0.45) !important;
   transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
@@ -236,7 +240,6 @@ onMounted(() => {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 15px rgba(234, 168, 81, 0.15) !important;
 }
 
-/* CHIPS / TAG DE DESTAQUE */
 .destaque-tag {
   background: rgba(105, 75, 179, 0.1) !important;
   color: rgb(var(--v-theme-secondary)) !important;
@@ -244,14 +247,12 @@ onMounted(() => {
   letter-spacing: 0.5px;
 }
 
-/* HASHTAGS */
 .hashtag-card {
   background: #231E1A !important;
   color: #FFFDF9 !important;
   font-weight: 600;
 }
 
-/* TEXTOS E HIERARQUIA */
 .destaque-title {
   color: #1A1512 !important;
   letter-spacing: -0.02em;
@@ -272,7 +273,6 @@ onMounted(() => {
   font-weight: 500;
 }
 
-/* Contador de Curtidas */
 .like-counter {
   border: 1px solid rgba(35, 30, 26, 0.15);
   color: #38312C;

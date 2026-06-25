@@ -1,41 +1,67 @@
 <template>
-  <v-main>
-    <div class="posts-grid px-2 px-sm-4">
-      <v-card
+  <v-main class="py-0">
+    <div class="posts-container w-100">
+      
+      <v-hover 
         v-for="(post, index) in postsFiltrados"
         :key="`post-${post?.id ?? index}`"
-        class="post-card"
-        elevation="0"
+        v-slot="{ isHovering, props }"
       >
-        <v-row class="ma-0 pa-2 pa-sm-4" align="center">
-          
-          <v-col cols="12" md="4" class="d-flex justify-center align-center">
-            <v-img
-              :src="post?.post_url || '/placeholder.png'"
-              width="100%"
-              max-height="220px"
-              cover
-              class="post-image rounded-lg"
-              style="border: 1px solid #EAA851;"
-            ></v-img>
-          </v-col>
+        <article
+          v-bind="props"
+          :class="['post-card', { 'post-card--hover': isHovering }]"
+          v-ripple
+          @click="irParaPost(post)"
+        >
+          <v-row class="ma-0 h-100" align="stretch">
+            
+            <v-col cols="12" sm="5" md="4" class="pa-0 image-wrapper h-100">
+              <v-img
+                :src="post?.post_url || '/placeholder.png'"
+                height="100%"
+                cover
+                class="post-image"
+                :class="{ 'post-image--zoom': isHovering }"
+                alt="Capa do post"
+              >
+                <template v-slot:placeholder>
+                  <v-row class="fill-height ma-0" align="center" justify="center">
+                    <v-progress-circular indeterminate color="amber-darken-2" />
+                  </v-row>
+                </template>
+              </v-img>
+            </v-col>
 
-          <v-col cols="12" md="8" class="pa-2 pa-sm-4">
-            <v-card-text class="pa-0">
-              <div class="fonte post-title text-h6 text-sm-h5 text-septenary">{{ post?.titulo }}</div>
-              <div class="fonte post-meta text-caption text-sm-body-2">{{ post?.autor }} • {{ formatDate(post?.data) }}</div>
-              <div class="fonte post-excerpt text-body-2 text-sm-body-1" v-html="post?.conteudo"></div>
-            </v-card-text>
-          </v-col>
-        </v-row>
+            <v-col cols="12" sm="7" md="8" class="pa-5 pa-md-6 d-flex flex-column justify-center">
+              <div class="fonte post-meta text-uppercase text-caption mb-2">
+                <span>{{ post?.autor }}</span>
+                <span class="mx-2">•</span>
+                <span>{{ formatDate(post?.data) }}</span>
+              </div>
+              
+              <h2 class="fonte post-title text-h5 text-md-h4 mb-3">
+                {{ post?.titulo }}
+              </h2>
+              
+              <div class="fonte post-excerpt text-body-2 text-md-body-1 mb-4" v-html="post?.conteudo"></div>
 
-        <v-divider style="border-color: rgb(var(--v-theme-background)) !important;" />
+              <div class="d-flex align-center mt-auto pt-2">
+                <span class="fonte read-more-link text-button font-weight-bold" :class="{ 'text-primary-color': isHovering }">
+                  Ler Artigo 
+                  <v-icon 
+                    icon="mdi-arrow-right" 
+                    size="small" 
+                    class="ml-1 transition-icon"
+                    :class="{ 'transition-icon--moved': isHovering }"
+                  />
+                </span>
+              </div>
+            </v-col>
 
-        <v-card-actions class="px-4 py-2">
-          <v-spacer />
-          <v-btn color="primary" variant="text" class="fonte font-weight-bold" @click="irParaPost(post)">Leia mais</v-btn>
-        </v-card-actions>
-      </v-card>
+          </v-row>
+        </article>
+      </v-hover>
+
     </div>
   </v-main>
 </template>
@@ -55,9 +81,7 @@ const postsFiltrados = computed(() => {
   if (!props.filtroTitulo || props.filtroTitulo.trim() === '') {
     return posts.value
   }
-
   const termoBusca = props.filtroTitulo.toLowerCase().trim()
-
   return posts.value.filter(post => {
     const tituloPost = post?.titulo ? String(post.titulo).toLowerCase() : ''
     return tituloPost.includes(termoBusca)
@@ -89,50 +113,69 @@ onMounted(loadPosts)
 </script>
 
 <style scoped>
+
 .fonte {
   font-family: 'Georgia', serif !important;
 }
 
-.posts-grid {
-  display: grid;
-  gap: 24px;
+.posts-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .post-card {
-  border-radius: 20px !important;
+  background: #F9F6F0 !important; 
+  border: 1px solid rgba(35, 30, 26, 0.12) !important; 
+  border-radius: 12px;
   overflow: hidden;
-  background: #EAE3D2 !important;
-  border: 2px solid rgb(var(--v-theme-primary)) !important; 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;  
+  cursor: pointer;
+  position: relative;
+  height: 260px; 
+  will-change: transform, box-shadow;
+  box-shadow: 0 2px 12px rgba(35, 30, 26, 0.04) !important;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
 }
 
-.post-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 15px rgba(234, 168, 81, 0.2) !important;
+.post-card--hover {
+  transform: translateY(-3px);
+  border-color: #EAA851 !important; 
+  box-shadow: 0 10px 25px rgba(35, 30, 26, 0.1) !important;
+}
+
+.image-wrapper {
+  overflow: hidden;
 }
 
 .post-image {
-  object-fit: cover;
-  width: 100%;
+  will-change: transform;
+  transition: transform 0.3s ease-out;
+}
+
+.post-image--zoom {
+  transform: scale(1.02);
 }
 
 .post-title {
-  font-weight: 700;
-  margin-bottom: 8px;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
-  color: #231E1A !important; 
+  color: #231E1A;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .post-meta {
-  color: #5C524A !important;
-  font-weight: 500;
-  margin-bottom: 12px;
+  color: #8C827A;
+  letter-spacing: 0.1em;
+  font-weight: 600;
 }
 
 .post-excerpt {
-  color: #3D3530 !important;
+  color: #5C524A;
   line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -140,16 +183,42 @@ onMounted(loadPosts)
   overflow: hidden;
 }
 
-:deep(.v-btn) {
-  font-weight: 700 !important;
-  letter-spacing: 0.5px;
-  color: rgb(var(--v-theme-secondary)) !important; 
+.read-more-link {
+  color: #231E1A;
+  border-bottom: 1px solid rgba(234, 168, 81, 0.4);
+  padding-bottom: 2px;
+  transition: color 0.2s ease;
+}
+
+.text-primary-color {
+  color: #EAA851 !important;
+}
+
+.transition-icon {
+  transition: transform 0.2s ease;
+}
+
+.transition-icon--moved {
+  transform: translateX(4px);
 }
 
 @media (max-width: 600px) {
-  .posts-grid {
-    gap: 16px;
+  .posts-container {
+    gap: 24px;
   }
+  
+  .post-card {
+    height: auto; 
+  }
+  
+  .image-wrapper {
+    height: 200px; 
+  }
+
+  .post-title {
+    font-size: 1.35rem !important;
+  }
+  
   .post-excerpt {
     -webkit-line-clamp: 2;
   }

@@ -4,12 +4,12 @@
 
     <v-main class="main-scroll">
       <v-container fluid class="pa-4 pa-sm-8">
-        <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-6">
+        <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
           Visão Geral
         </v-card-text>
 
-        <v-row class="ms-6 me-6">
-          <v-col v-for="(stat, i) in stats" :key="i" cols="12" sm="6" md="3">
+        <v-row class="">
+          <v-col v-for="(stat, i) in stats" :key="i" cols="12" sm="6" md="4">
             <v-card border flat class="rounded-lg pa-4">
               <div class="d-flex justify-space-between align-center">
                 <div>
@@ -22,12 +22,12 @@
           </v-col>
         </v-row>
 
-        <v-row class="ms-6 me-6 mt-4">
+        <v-row class="mt-4">
           <v-col cols="12" md="8">
             <v-card border flat class="rounded-lg h-100 pa-4">
               <v-card-title class="px-0">Acessos nos últimos 7 dias</v-card-title>
               <v-sheet height="250" class="d-flex align-center justify-center bg-grey-lighten-4 rounded-lg">
-                <span class="text-grey">Gráfico de Linha: [Visualizações x Dias]</span>
+                <span class="text-grey text-center pa-2">Gráfico de Linha: [Visualizações x Dias]</span>
               </v-sheet>
             </v-card>
           </v-col>
@@ -50,36 +50,36 @@
 
           <v-col cols="12" class="mt-4">
             <v-card border flat class="rounded-lg pa-4">
-              <v-card-title class="px-0 d-flex justify-space-between align-center">
+              <v-card-title class="px-0 d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-2">
                 Posts Recentes
-                <v-btn to="/admin/nova-postagem" color="#7B5CFF" theme="dark" size="small">Novo Post</v-btn>
+                <v-btn to="/admin/nova-postagem" color="#7B5CFF" theme="dark" size="small" :block="$vuetify.display.xs">
+                  Novo Post
+                </v-btn>
               </v-card-title>
               
-              <v-table density="compact">
-                <thead>
-                  <tr>
-                    <th class="text-left">Título</th>
-                    <th class="text-left">Data</th>
-                    <th class="text-left">Status</th>
-                    <th class="text-right">Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="item in postsRecentes" :key="item.id || item.titulo || item.data">
-                    <td>{{ item.titulo || item.title }}</td>
-                    <td>{{ item.data || item.date }}</td>
-                    <td>
-                      <v-chip size="x-small" :color="(item.status || item.situacao || (item.publicado || item.published ? 'Publicado' : 'Rascunho')) === 'Publicado' ? 'success' : 'warning'">
-                        {{ item.status || item.situacao || (item.publicado || item.published ? 'Publicado' : 'Rascunho') }}
-                      </v-chip>
-                    </td>
-                    <td class="text-right">
-                      <v-btn icon="mdi-pencil" variant="text" size="small" color="blue"></v-btn>
-                      <v-btn icon="mdi-delete" variant="text" size="small" color="red"></v-btn>
-                    </td>
-                  </tr>
-                </tbody>
-              </v-table>
+              <v-responsive class="overflow-x-auto">
+                <v-table density="compact">
+                  <thead>
+                    <tr>
+                      <th class="text-left">Título</th>
+                      <th class="text-left">Data</th>
+                      <th class="text-left">Autor</th>
+                      <th class="text-right">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in postsRecentes" :key="item.id || item.titulo || item.data">
+                      <td>{{ item.titulo || item.title }}</td>
+                      <td>{{ item.data || item.date }}</td>
+                      <td>{{ item.autor }}</td>
+                      <td class="text-right">
+                        <v-btn icon="mdi-pencil" variant="text" size="small" color="blue"></v-btn>
+                        <v-btn icon="mdi-delete" variant="text" size="small" color="red"></v-btn>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </v-responsive>
             </v-card>
           </v-col>
         </v-row>
@@ -113,10 +113,6 @@ const stats = computed(() => [
   },
   { title: 'Inscritos', value: String(totalInscritos.value || 0), icon: 'mdi-account-group', color: '#7B5CFF' },
 ])
-
-function formatarStatus(item: any) {
-  return item.status || item.situacao || (item.publicado || item.published ? 'Publicado' : 'Rascunho')
-}
 
 // 3. Funções para buscar dados do Backend
 async function carregarContagemPosts() {

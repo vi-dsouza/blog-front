@@ -55,16 +55,6 @@
           </v-col>
 
           <v-col cols="12" md="8">
-            <!-- <v-textarea
-              clearable
-              v-model="conteudo"
-              label="Conteúdo do Post"
-              variant="outlined"
-              auto-grow
-              rows="11"
-              max-rows="10"
-              color="#7B5CFF"
-            ></v-textarea> -->
             <div class="editor-wrapper">
               <label class="editor-label text-subtitle-2 mb-2 d-block">Conteúdo do Post</label>
               
@@ -94,30 +84,27 @@ import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import { usePostagemStore } from '~/stores/postsStore';
 import { useAlertStore } from "~/stores/alert"
-// Importamos o roteador para redirecionar após publicar
+
 const router = useRouter()
 
 definePageMeta({
   middleware: 'auth'
 })
 
-// Inicializando Stores
 const postagemStore = usePostagemStore()
 const alertStore = useAlertStore()
-// Refs para os campos do formulário
 const titulo = ref('')
-const data = ref(new Date().toISOString().substr(0, 10)) // Inicia com a data de hoje
+const data = ref(new Date().toISOString().substr(0, 10)) 
 const autor = ref('')
-const hashtags = ref<string[]>([]) // Array para o v-combobox
+const hashtags = ref<string[]>([])
 const conteudo = ref('')
 const post = ref<File | null>(null)
 const urlPreview = ref<string | null>(null)
 
-// Lógica de Preview da Imagem
 const gerarPreview = (event: any) => {
   const file = event.target.files[0]
   if (file) {
-    post.value = file // Garante que o ref 'post' receba o arquivo
+    post.value = file
     urlPreview.value = URL.createObjectURL(file)
   }
 }
@@ -127,31 +114,26 @@ const limparFoto = () => {
   urlPreview.value = null
 }
 
-// FUNÇÃO PRINCIPAL: Publicar Postagem
 const publicarPostagem = async () => {
-  // Validação básica
   if (!titulo.value || !conteudo.value || !autor.value) {
     alertStore.showError("Por favor, preencha os campos obrigatórios (Título, Autor e Conteúdo).")
     return
   }
 
   try {
-    // Montamos o payload seguindo a interface 'Postagens' da sua Store
-    // Transformamos o array de hashtags em uma string separada por vírgula para o banco
     const payload = {
       titulo: titulo.value,
       data: data.value,
       autor: autor.value,
       hashtags: hashtags.value.join(', '), 
       conteudo: conteudo.value,
-      post: post.value // O arquivo File
+      post: post.value
     }
 
     await postagemStore.criarPost(payload)
     
     alertStore.showSuccess("Postagem publicada com sucesso!")
     
-    // Opcional: Redirecionar para a lista de posts ou limpar campos
     router.push('/admin/dashboard') 
 
   } catch (error: any) {
@@ -160,7 +142,6 @@ const publicarPostagem = async () => {
   }
 }
 
-// Função para cancelar (volta para a página anterior ou limpa)
 const cancelar = () => {
   if (confirm("Deseja descartar as alterações?")) {
     router.back()
@@ -169,19 +150,16 @@ const cancelar = () => {
 </script>
 
 <style scoped>
-/* Faz a aplicação ocupar 100% da tela */
     html, body, #__nuxt, #app {
     height: 100%;
     margin: 0;
     }
 
-    /* Trava o layout para não rolar tudo */
     .v-application {
     height: 100vh;
     overflow: hidden;
     }
 
-    /* Apenas o conteúdo principal rola */
     .main-scroll {
     height: 100vh;
     overflow-y: auto;
@@ -196,7 +174,6 @@ const cancelar = () => {
     border-color: #7B5CFF !important;
   }
 
-  /* 2. Customização para o editor adotar a sua cor roxa (#7B5CFF) e se parecer com o Vuetify */
   .editor-wrapper {
     --quill-color: #7B5CFF;
   }
@@ -206,21 +183,15 @@ const cancelar = () => {
     font-weight: 600;
   }
 
-/* Altura fixa na área de texto do Editor */
 .editor-wrapper :deep(.ql-container.ql-snow) {
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
   border-color: rgba(0, 0, 0, 0.22);
   font-size: 1rem;
-  
-  /* Definimos a altura fixa aqui (ex: 400px) */
   height: 250px; 
-  
-  /* Garante que se o texto passar de 400px, apareça a barra de rolagem */
   overflow-y: auto; 
 }
 
-/* Mantém as bordas arredondadas da barra de ferramentas */
 .editor-wrapper :deep(.ql-toolbar.ql-snow) {
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
@@ -228,7 +199,6 @@ const cancelar = () => {
   background-color: #fafafa;
 }
 
-/* Cor roxa de foco ao clicar */
 .editor-wrapper {
   --quill-color: #7B5CFF;
 }

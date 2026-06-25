@@ -83,7 +83,7 @@ onMounted(loadTags)
   flex: 0 0 200px;
   min-width: 200px;
   height: 55px;
-  background: #4A2E80 !important; 
+  background: #6e49b8 !important; 
   color: var(--v-theme-septenary) !important;
   border: 1px solid rgba(234, 168, 81, 0.25); 
   border-radius: 12px !important;
