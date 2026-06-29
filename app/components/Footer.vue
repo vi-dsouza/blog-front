@@ -13,7 +13,7 @@
 
         <v-col cols="12" md="4" class="fonte text-center mb-4 mb-md-0">
           <p><strong>Fale Conosco</strong></p>
-          <p>Email: entreideias@gmail.com</p>
+          <p>Email: entreideiasvs@gmail.com</p>
         </v-col>
 
         <v-col cols="12" md="4" class="fonte text-center">

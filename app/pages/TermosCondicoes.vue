@@ -85,7 +85,7 @@
                 <v-card elevation="2" class="pa-6 mt-6" style="background-color: rgba(var(--v-theme-septenary), 0.6);" tile>
                   <div class="text-black d-flex flex-column gap-2">
                     <span class="fonte text-subtitle-1 font-weight-semibold">Dúvidas ou Comentários?</span>
-                    <span class="fonte text-body-large">Se tiver dúvidas sobre estes termos, não hesite em nos contatar através do e-mail <a href="mailto:entreideias@gmail.com" class="text-decoration-none" style="color: rgba(var(--v-theme-secondary));">entreideias@gmail.com</a>.</span>
+                    <span class="fonte text-body-large">Se tiver dúvidas sobre estes termos, não hesite em nos contatar através do e-mail <a href="mailto:entreideiasvs@gmail.com" class="text-decoration-none" style="color: rgba(var(--v-theme-secondary));">entreideiasvs@gmail.com</a>.</span>
                   </div>
                 </v-card>
               </div>

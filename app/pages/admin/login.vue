@@ -1,3 +1,44 @@
+<template>
+  <v-img
+    cover
+    src="/capa_login.jpg"
+    class="fill-height d-flex align-center justify-center"
+  >
+    <v-card class="containerLogin">
+      <v-card-title class="text-h5 font-weight-bold text-center pa-16 pt-0">
+        Painel do Administrador
+      </v-card-title>
+
+      <div class="input-group">
+        <i class="mdi mdi-email icon"></i>
+        <input v-model="email" type="email" placeholder="E-mail" @keyup.enter="handleLogin" />
+      </div>
+
+      <div class="input-group">
+        <i class="mdi mdi-lock icon"></i>
+        <input v-model="password" type="password" placeholder="Senha" @keyup.enter="handleLogin" />
+      </div>
+
+      <transition name="fade">
+        <span v-if="errorMsg" class="error-text">{{ errorMsg }}</span>
+      </transition>
+
+      <NuxtLink href="esqueci-senha" class="linkCadastro">
+        <v-icon size="18">mdi-account</v-icon>
+        Esqueci minha senha
+      </NuxtLink>
+
+      <v-btn 
+        class="btn-login" 
+        :loading="loading" 
+        @click="handleLogin"
+      >
+        Entrar
+      </v-btn>
+    </v-card>
+  </v-img>
+</template>
+
 <script setup>
 
 // Reatividade para capturar os dados
@@ -57,48 +98,6 @@ async function handleLogin() {
 }
 </script>
 
-<template>
-  <v-img
-    cover
-    src="/capa_login.jpg"
-    class="fill-height d-flex align-center justify-center"
-  >
-    <v-card class="containerLogin">
-      <v-card-title class="text-h5 font-weight-bold text-center pa-16 pt-0">
-        Painel do Administrador
-      </v-card-title>
-
-      <div class="input-group">
-        <i class="mdi mdi-email icon"></i>
-        <input v-model="email" type="email" placeholder="E-mail" @keyup.enter="handleLogin" />
-      </div>
-
-      <div class="input-group">
-        <i class="mdi mdi-lock icon"></i>
-        <input v-model="password" type="password" placeholder="Senha" @keyup.enter="handleLogin" />
-      </div>
-
-      <transition name="fade">
-        <span v-if="errorMsg" class="error-text">{{ errorMsg }}</span>
-      </transition>
-
-      <NuxtLink to="/cadastro" class="linkCadastro">
-        <v-icon size="18">mdi-account</v-icon>
-        Cadastrar administrador
-      </NuxtLink>
-
-      <v-btn 
-        class="btn-login" 
-        :loading="loading" 
-        @click="handleLogin"
-      >
-        Entrar
-      </v-btn>
-    </v-card>
-  </v-img>
-</template>
-
-
 <style scoped>
 .fill-height {
   height: 100vh !important;
@@ -111,7 +110,9 @@ async function handleLogin() {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  width: 26vw;
+   width: 100%;
+  max-width: 420px;
+  min-width: 320px;
   min-height: 420px;
   gap: 28px;
   padding: 48px 40px;
@@ -191,6 +192,7 @@ async function handleLogin() {
 
 @media(max-width: 600px){
   .containerLogin {
+    width: 90%;
     padding: 30px 20px;
     gap: 20px;
   }

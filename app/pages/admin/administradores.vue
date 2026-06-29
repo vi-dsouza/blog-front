@@ -17,7 +17,7 @@
               </v-btn>
 
               <ModalCadastroUsuario v-model="cadastroAdmin">
-                <div class="d-flex flex-column" style="max-height: 80vh; min-height: 0;">
+                <div class="d-flex flex-column" style="height: 75vh; max-height: 600px; min-height: 0;">
 
                   <div class="d-flex justify-space-between align-center mb-4 flex-shrink-0">
                     <div>
@@ -72,7 +72,7 @@
 
                           <v-file-input
                             ref="fileInput"
-                            v-model="fotoInput"
+                            v-model="fotoArray"
                             accept="image/*"
                             class="d-none"
                             @update:modelValue="gerarPreview"
@@ -106,6 +106,7 @@
                           variant="outlined"
                           density="compact"
                           prepend-inner-icon="mdi-lock"
+                          :placeholder="idSelecionado ? 'Deixe em branco para manter a atual' : ''"
                         />  
                       </v-col>
                       
@@ -132,8 +133,8 @@
                     </v-row>
                   </div>
 
-                  <div class="d-flex justify-end gap-3 pt-4 flex-shrink-0">
-                    <v-btn variant="text" @click="cadastroAdmin = false">
+                  <div class="d-flex justify-end gap-3 pt-4 border-top flex-shrink-0">
+                    <v-btn variant="text" @click="fecharModal">
                       Cancelar
                     </v-btn>
 
@@ -224,11 +225,15 @@ definePageMeta({
 
 const alertStore = useAlertStore()
 const adminStore = useAdminStore()
-const fotoInput = ref<File | null>(null)
+
+// CORREÇÃO: Vuetify trabalha melhor vinculando arrays no v-model do v-file-input
+const fotoArray = ref<File[]>([])
 const idSelecionado = ref<number | null>(null)
 
 const modalDelete = ref(false)
 const adminParaDeletar = ref<any>(null)
+const cadastroAdmin = ref(false)
+const urlPreview = ref<string | null>(null)
 
 const form = ref({
   nome: '',
@@ -240,7 +245,9 @@ const form = ref({
 
 const handleSalvar = async () => {
   try {
-    const dados = { ...form.value, foto: fotoInput.value };
+    // Coleta a foto se ela existir no array reativo
+    const arquivoFinal = fotoArray.value.length > 0 ? fotoArray.value[0] : null
+    const dados = { ...form.value, foto: arquivoFinal };
 
     if (idSelecionado.value) {
       await adminStore.atualizarAdmin(idSelecionado.value, dados);
@@ -296,17 +303,13 @@ const deletarConfirmado = async () => {
   adminParaDeletar.value = null
 
   await adminStore.busca_admins()
-
   alertStore.showSuccess("Administrador deletado com sucesso")
 }
 
-const cadastroAdmin = ref(false)
-const foto = ref<File | null>(null)
-const urlPreview = ref<string | null>(null)
-
-function gerarPreview(file: File | File[] | null) {
-  if (!file) return
-  const arquivo = Array.isArray(file) ? file[0] : file
+// CORREÇÃO: Refatorado para capturar corretamente a emissão do array
+function gerarPreview(arquivos: File | File[] | null) {
+  if (!arquivos) return
+  const arquivo = Array.isArray(arquivos) ? arquivos[0] : arquivos
   urlPreview.value = URL.createObjectURL(arquivo)
 }
 
@@ -318,19 +321,17 @@ const resetForm = () => {
     is_admin: false, 
     biografia: ''
   };
-  
-  fotoInput.value = null;
+  fotoArray.value = [];
   urlPreview.value = null;
 };
 
 function limparFoto() {
-  fotoInput.value = null
+  fotoArray.value = []
   urlPreview.value = null
 }
 
 onMounted(() => {
   adminStore.busca_admins()
-  console.log(adminStore.admin)
 })
 </script>
 
@@ -356,5 +357,9 @@ html, body, #__nuxt, #app {
   border-color: #7B5CFF !important;
   background-color: #f3efff !important;
   transform: scale(1.03);
+}
+
+.gap-3 {
+  gap: 12px;
 }
 </style>
