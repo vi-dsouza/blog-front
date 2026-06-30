@@ -144,7 +144,6 @@
               <v-toolbar-title class="text-white font-weight-bold">
                 Confirmar exclusão
               </v-toolbar-title>
-              <v-spacer />
               <v-btn
                 icon="mdi-close"
                 variant="text"

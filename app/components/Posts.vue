@@ -3,7 +3,7 @@
     <div class="posts-container w-100">
       
       <v-hover 
-        v-for="(post, index) in postsFiltrados"
+        v-for="(post, index) in postsPaginados"
         :key="`post-${post?.id ?? index}`"
         v-slot="{ isHovering, props }"
       >
@@ -61,17 +61,28 @@
           </v-row>
         </article>
       </v-hover>
+      <v-pagination
+        v-if="totalPaginas > 1"
+        v-model="paginaAtual"
+        :length="totalPaginas"
+        :total-visible="5"
+        color="#EAA851"
+        class="my-4"
+        density="comfortable"
+      ></v-pagination>
 
     </div>
   </v-main>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { usePostagemStore } from '@/stores/postsStore'
 
 const postagemStore = usePostagemStore()
 const posts = ref<any[]>([])
+const paginaAtual = ref(1)
+const itensPorPagina = 10
 
 const props = defineProps({
   filtroTitulo: String
@@ -86,6 +97,20 @@ const postsFiltrados = computed(() => {
     const tituloPost = post?.titulo ? String(post.titulo).toLowerCase() : ''
     return tituloPost.includes(termoBusca)
   })
+})
+
+const totalPaginas = computed(() => {
+  return Math.ceil(postsFiltrados.value.length / itensPorPagina)
+})
+
+const postsPaginados = computed(() => {
+  const inicio = (paginaAtual.value - 1) * itensPorPagina
+  const fim = inicio + itensPorPagina
+  return postsFiltrados.value.slice(inicio, fim)
+})
+
+watch(() => props.filtroTitulo, () => {
+  paginaAtual.value = 1
 })
 
 const loadPosts = async () => {

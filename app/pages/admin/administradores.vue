@@ -198,7 +198,6 @@
     <v-card>
       <v-toolbar flat color="#7B5CFF">
         <v-toolbar-title class="text-white font-weight-bold">Confirmar exclusão</v-toolbar-title>
-        <v-spacer />
         <v-btn icon="mdi-close" variant="text" class="text-white" @click="modalDelete = false" />
       </v-toolbar>
       <v-card-text class="pt-4">
