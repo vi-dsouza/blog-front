@@ -25,26 +25,28 @@
         <v-row class="mt-4">
           <v-col cols="12" md="8">
             <v-card border flat class="rounded-lg h-100 pa-4">
-              <v-card-title class="px-0">Acessos nos últimos 7 dias</v-card-title>
-              <v-sheet height="250" class="d-flex align-center justify-center bg-grey-lighten-4 rounded-lg">
-                <span class="text-grey text-center pa-2">Gráfico de Linha: [Visualizações x Dias]</span>
+              <v-card-title class="px-0">Engajamento de E-mails (Últimos Disparos)</v-card-title>
+              <v-sheet height="250" class="d-flex align-center justify-center">
+                
+                <Bar :data="chartData" :options="chartOptions" />
+                
               </v-sheet>
             </v-card>
           </v-col>
 
           <v-col cols="12" md="4">
             <v-card border flat class="rounded-lg h-100 pa-4">
-              <v-card-title class="px-0">Top Posts</v-card-title>
+              <v-card-title class="px-0">Status dos Últimos Envios</v-card-title>
               <v-list lines="one">
                 <v-list-item
-                  v-for="post in topPosts"
-                  :key="post.id"
-                  :title="post.title"
-                  :subtitle="post.views + ' views'"
-                  prepend-icon="mdi-trending-up"
+                  v-for="(disparo, idx) in statusDisparos"
+                  :key="idx"
+                  :title="disparo.titulo"
+                  :subtitle="disparo.detalhe"
+                  prepend-icon="mdi-email-check-outline"
                 ></v-list-item>
               </v-list>
-              <v-btn block variant="text" color="#7B5CFF" class="mt-2">Ver todos</v-btn>
+              <v-btn block variant="text" color="#7B5CFF" class="mt-2">Ver todos no Resend</v-btn>
             </v-card>
           </v-col>
 
@@ -64,7 +66,7 @@
                       <th class="text-left">Título</th>
                       <th class="text-left">Data</th>
                       <th class="text-left">Autor</th>
-                      <th class="text-right">Ações</th>
+                      <th class="text-right">Curtidas</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -73,8 +75,10 @@
                       <td>{{ item.data || item.date }}</td>
                       <td>{{ item.autor }}</td>
                       <td class="text-right">
-                        <v-btn icon="mdi-pencil" variant="text" size="small" color="blue"></v-btn>
-                        <v-btn icon="mdi-delete" variant="text" size="small" color="red"></v-btn>
+                        <div class="d-flex align-center justify-end gap-1">
+                          <v-icon size="small" color="error">mdi-heart</v-icon>
+                          <span class="text-caption font-weight-bold">{{ item.likes_count || 0 }}</span>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -93,18 +97,22 @@ import { ref, onMounted, computed } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue';
 import { usePostagemStore } from '~/stores/postsStore';
 import { useInscritosStore } from '~/stores/inscricaoStore';
+import { Bar } from 'vue-chartjs'
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 const postsStore = usePostagemStore();
 const qtdIncritos = useInscritosStore();
-
-// 1. Variáveis reativas para o dashboard
 const totalPosts = ref<number | string>(0);
 const postsRecentes = ref<any[]>([]);
 const totalInscritos = ref<number | string>(0);
+const taxaAbertura = ref<string>('0%');
+const statusDisparos = ref<any[]>([]);
+const valoresGrafico = ref<number[]>([0, 0, 0]);
 
-// 2. Computed para atualizar os cards automaticamente quando as variáveis mudarem
 const stats = computed(() => [
-  { title: 'Views Total', value: '24.8k', icon: 'mdi-eye', color: '#7B5CFF' },
+  { title: 'Taxa de Abertura', value: taxaAbertura.value, icon: 'mdi-email-open-outline', color: '#7B5CFF' },
   { 
     title: 'Postagens', 
     value: String(totalPosts.value || postsStore.posts?.length || 0), 
@@ -114,34 +122,59 @@ const stats = computed(() => [
   { title: 'Inscritos', value: String(totalInscritos.value || 0), icon: 'mdi-account-group', color: '#7B5CFF' },
 ])
 
-// 3. Funções para buscar dados do Backend
+const chartData = computed(() => ({
+  labels: ['Disparados', 'Abertos', 'Clicados'],
+  datasets: [
+    {
+      label: 'E-mails',
+      backgroundColor: '#7B5CFF',
+      borderRadius: 6,
+      data: valoresGrafico.value
+    }
+  ]
+}))
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false }
+  }
+}
+
+async function carregarDadosDashboard() {
+  try {
+    const resposta = await fetch('http://localhost:5000/dashboard/dashboard/visao-geral');
+    const dados = await resposta.json();
+
+    if (resposta.ok) {
+      taxaAbertura.value = dados.cards.taxa_abertura;
+      statusDisparos.value = dados.top_posts; 
+      valoresGrafico.value = dados.grafico.valores;
+    }
+  } catch (err) {
+    console.error('Erro ao buscar dados do Resend via API:', err);
+    taxaAbertura.value = '0%';
+    statusDisparos.value = [{ titulo: 'Sem envios registrados', detalhe: 'Nenhum dado' }];
+    valoresGrafico.value = [0, 0, 0];
+  }
+}
+
 async function carregarContagemPosts() {
   try {
     const data = await postsStore.contar_posts();
-
-    if (typeof data === 'number') {
-      totalPosts.value = data;
-    } else if (data && typeof data === 'object') {
-      totalPosts.value = data.count ?? 0;
-    } else if (data) {
-      totalPosts.value = Number(data) || 0;
-    }
+    if (typeof data === 'number') totalPosts.value = data;
+    else if (data && typeof data === 'object') totalPosts.value = data.count ?? 0;
   } catch (err) {
-    console.error('Erro ao carregar contagem de posts no componente:', err)
+    console.error('Erro ao carregar contagem de posts:', err)
   }
 }
 
 async function carregarQtdInscritos() {
   try {
     const data = await qtdIncritos.contar_inscritos();
-
-    if (typeof data === 'number') {
-      totalInscritos.value = data;
-    } else if (data && typeof data === 'object') {
-      totalInscritos.value = data.count ?? 0;
-    } else if (data) {
-      totalInscritos.value = Number(data) || 0;
-    }
+    if (typeof data === 'number') totalInscritos.value = data;
+    else if (data && typeof data === 'object') totalInscritos.value = data.count ?? 0;
   } catch (err) {
     console.error("Erro ao carregar quantidade de inscritos:", err)
   }
@@ -158,21 +191,23 @@ async function carregarPostsRecentes() {
   }
 }
 
-// 4. Ciclo de vida
 onMounted(async () => {
-  await carregarContagemPosts();
-  await carregarQtdInscritos();
-  await carregarPostsRecentes();
+  await Promise.all([
+    carregarContagemPosts(),
+    carregarQtdInscritos(),
+    carregarPostsRecentes(),
+    carregarDadosDashboard()
+  ]);
 })
 
 definePageMeta({
   middleware: 'auth'
 })
-
-// Dados estáticos (Mock)
-const topPosts = [
-  { id: 1, title: 'Como usar Vuetify 3', views: '4.5k' },
-  { id: 2, title: 'Guia de Estilo CSS', views: '3.2k' },
-  { id: 3, title: 'Dicas de UX/UI', views: '1.8k' },
-]
 </script>
+
+<style>
+.main-scroll {
+  height: 100vh;
+  overflow-y: auto;
+}
+</style>

@@ -11,7 +11,6 @@ interface AdminRegister {
     foto: File | null;
 }
 
-// Função utilitária para pegar o token e configurar os headers
 const getHeaders = () => {
     const token = useCookie('auth_token').value
     return {

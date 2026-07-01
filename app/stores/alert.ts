@@ -20,6 +20,12 @@ export const useAlertStore = defineStore('alert', {
       this.show = true
     },
 
+    showInfo(message: string) {
+      this.message = message
+      this.color = 'info'
+      this.show = true
+    },
+
     close() {
       this.show = false
     }

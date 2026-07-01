@@ -95,13 +95,6 @@
               </div>
             </div>
 
-            <v-snackbar v-model="snackbar" timeout="2500" color="success" rounded="xl">
-              <div class="fonte d-flex align-center">
-                <v-icon class="mr-2">mdi-check-circle</v-icon>
-                <span>Link copiado para área de transferência!</span>
-              </div>
-            </v-snackbar>
-
             <v-img
               :src="post.post_url || '/placeholder.png'"
               :alt="post.titulo"
@@ -113,6 +106,87 @@
 
           </v-card>
 
+          <!-- Modal de Compartilhamento -->
+          <v-dialog v-model="showShareModal" max-width="420">
+            <v-card 
+              flat
+              class="rounded-xl" 
+              color="#FFFDF9"
+              style="border: 2px solid rgb(var(--v-theme-primary));"
+            >
+              <div 
+                class="pa-8 text-center position-relative overflow-hidden"
+                style="background: linear-gradient(135deg, rgb(var(--v-theme-primary)), rgba(var(--v-theme-primary), 0.7));"
+              >
+                <h3 class="fonte text-h5 font-weight-bold text-white mb-2">
+                  {{ post.titulo }}
+                </h3>
+                <p class="fonte text-body-2 text-white" style="opacity: 0.9;">
+                  Compartilhe este artigo
+                </p>
+              </div>
+              
+              <div class="pa-8">
+                <div class="d-flex justify-center gap-6 mb-8">
+                  <v-btn 
+                    icon
+                    size="60"
+                    rounded="circle"
+                    style="background-color: #25D366;"
+                    @click="compartilharWhatsApp(post)"
+                    class="share-btn shadow-lg"
+                  >
+                    <v-icon size="32" color="white">mdi-whatsapp</v-icon>
+                  </v-btn>
+
+                  <v-btn 
+                    icon
+                    size="60"
+                    rounded="circle"
+                    style="background-color: #1877F2;"
+                    @click="compartilharFacebook(post)"
+                    class="share-btn shadow-lg"
+                  >
+                    <v-icon size="32" color="white">mdi-facebook</v-icon>
+                  </v-btn>
+
+                  <v-btn 
+                    icon
+                    size="60"
+                    rounded="circle"
+                    style="background-color: #1DA1F2;"
+                    @click="compartilharTwitter(post)"
+                    class="share-btn shadow-lg"
+                  >
+                    <v-icon size="32" color="white">mdi-twitter</v-icon>
+                  </v-btn>
+                </div>
+
+                <v-divider class="mb-6"></v-divider>
+
+                <v-btn 
+                  prepend-icon="mdi-content-copy" 
+                  color="secondary"
+                  size="large"
+                  class="fonte font-weight-bold w-100"
+                  variant="outlined"
+                  @click="copiarLink(post)"
+                >
+                  Copiar Link
+                </v-btn>
+
+                <v-btn 
+                  text
+                  block
+                  class="fonte mt-4"
+                  @click="showShareModal = false"
+                >
+                  Fechar
+                </v-btn>
+              </div>
+            </v-card>
+          </v-dialog>
+
         </v-col>
       </v-row>
     </v-container>
@@ -123,18 +197,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useSeoMeta, navigateTo } from '#app';
 import { usePostagemStore } from '@/stores/postsStore';
+import { useAlertStore } from '@/stores/alert';
 import Banner from '@/components/Banner.vue';
 import Footer from '@/components/Footer.vue';
 
 const route = useRoute(); 
 const postagemStore = usePostagemStore();
+const alertStore = useAlertStore();
 
 const post = ref<any>(null);
 const loading = ref(true);
 const liked = ref(false);
-const likesCount = ref(0); 
-const snackbar = ref(false);
+const likesCount = ref(0);
+const showShareModal = ref(false);
 
 const loadPostData = async () => {
   try {
@@ -212,46 +289,42 @@ async function toggleLike() {
   }
 }
 
-const compartilhar = async (currentPost: any) => {
-  if (!currentPost || !currentPost.id) return;
+const compartilhar = (currentPost: any) => {
+  showShareModal.value = true;
+};
 
+const compartilharWhatsApp = (currentPost: any) => {
   const urlDoPost = `${window.location.origin}/postagem/${currentPost.id}`;
-  const tituloCompartilhar = `Confira este artigo: ${currentPost.titulo}`;
+  const mensagem = `Confira este artigo: ${currentPost.titulo}\n${urlDoPost}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+  window.open(whatsappUrl, '_blank');
+  showShareModal.value = false;
+};
 
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: currentPost.titulo,
-        text: tituloCompartilhar,
-        url: urlDoPost,
-      });
-      return;
-    } catch (error) {
-      if ((error as Error).name !== 'AbortError') console.error(error);
-    }
-  }
+const compartilharFacebook = (currentPost: any) => {
+  const urlDoPost = `${window.location.origin}/postagem/${currentPost.id}`;
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(urlDoPost)}`;
+  window.open(facebookUrl, '_blank');
+  showShareModal.value = false;
+};
 
+const compartilharTwitter = (currentPost: any) => {
+  const urlDoPost = `${window.location.origin}/postagem/${currentPost.id}`;
+  const texto = `Confira este artigo: ${currentPost.titulo}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(texto)}&url=${encodeURIComponent(urlDoPost)}`;
+  window.open(twitterUrl, '_blank');
+  showShareModal.value = false;
+};
+
+const copiarLink = async (currentPost: any) => {
+  const urlDoPost = `${window.location.origin}/postagem/${currentPost.id}`;
   try {
-    const htmlLink = `<a href="${urlDoPost}" target="_blank">${currentPost.titulo}</a>`;
-    const blobHtml = new Blob([htmlLink], { type: 'text/html' });
-    const blobText = new Blob([urlDoPost], { type: 'text/plain' });
-
-    const clipboardItem = new ClipboardItem({
-      'text/html': blobHtml,
-      'text/plain': blobText
-    });
-
-    await navigator.clipboard.write([clipboardItem]);
-    snackbar.value = true;
+    await navigator.clipboard.writeText(urlDoPost);
+    alertStore.showSuccess("Link copiado para área de transferência!");
   } catch (err) {
-    console.error("Falha ao copiar link inteligente:", err);
-    try {
-      await navigator.clipboard.writeText(urlDoPost);
-      snackbar.value = true;
-    } catch (fallbackErr) {
-      alert("Copie a URL direto da barra de endereços.");
-    }
+    alertStore.showInfo("Copie esta URL:\n" + urlDoPost);
   }
+  showShareModal.value = false;
 };
 
 const voltar = () => {
@@ -337,5 +410,14 @@ onMounted(loadPostData);
   .border-top-mobile {
     border-top: 1px solid rgba(0, 0, 0, 0.06);
   }
+}
+
+.share-btn {
+  transition: all 0.3s ease !important;
+}
+
+.share-btn:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2) !important;
 }
 </style>

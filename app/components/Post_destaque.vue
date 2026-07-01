@@ -1,7 +1,7 @@
 <template>
   <v-card 
     elevation="6" 
-    class="post-destaque-card rounded-xl overflow-hidden cursor-pointer" 
+    class="post-destaque-card rounded-xl overflow-hidden cursor-pointer mt-2 mt-sm-4 mt-md-10" 
     v-ripple
     @click="irParaPost(postDestaque)"
   >
@@ -32,7 +32,7 @@
           
           <div class="d-flex flex-wrap gap-2 mb-2">
             <v-chip
-              v-for="(tag, index) in (postDestaque?.hashtags || '').split(',').filter(t => t.trim())"
+              v-for="(tag, index) in (postDestaque?.hashtags || '').split(',').filter((t: string) => t.trim())"
               :key="`tag-${index}`"
               size="small"
               class="fonte hashtag-card"
@@ -41,7 +41,7 @@
             </v-chip>
           </div>
           
-          <p class="fonte destaque-excerpt text-body-2" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;"
+          <p class="fonte destaque-excerpt text-body-2" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; line-clamp: 4; overflow: hidden;"
             v-html="postDestaque?.conteudo || 'Aguarde enquanto buscamos o post mais recente para você.'">
           </p>
         </div>
@@ -77,16 +77,9 @@
               <v-icon color="#FFFDF9">mdi-eye</v-icon>
             </v-btn>
 
-            <v-btn title="Compartilhar" color="secondary" variant="outlined" icon density="comfortable" @click.stop="compartilhar(postDestaque)">
+            <v-btn title="Compartilhar" color="secondary" variant="outlined" icon density="comfortable" @click.stop="abrirShareModal(postDestaque)">
               <v-icon>mdi-share-variant</v-icon>
             </v-btn>
-            
-            <v-snackbar v-model="snackbar" timeout="2500" color="success" rounded="xl">
-              <div class="d-flex align-center">
-                <v-icon class="mr-2">mdi-check-circle</v-icon>
-                <span>Link copiado para área de transferência!</span>
-              </div>
-            </v-snackbar>
           </div>
 
           <div class="fonte destaque-data text-caption text-sm-body-2 align-self-end align-self-sm-center">
@@ -96,17 +89,100 @@
       </v-col>
     </v-row>
   </v-card>
+
+  <!-- Modal de Compartilhamento -->
+  <v-dialog v-model="showShareModal" max-width="420">
+    <v-card 
+      flat
+      class="rounded-xl" 
+      color="#FFFDF9"
+      style="border: 2px solid rgb(var(--v-theme-primary));"
+    >
+      <div 
+        class="pa-8 text-center position-relative overflow-hidden"
+        style="background: linear-gradient(135deg, rgb(var(--v-theme-primary)), rgba(var(--v-theme-primary), 0.7));"
+      >
+        <h3 class="fonte text-h5 font-weight-bold text-white mb-2">
+          {{ postParaCompartilhar?.titulo }}
+        </h3>
+        <p class="fonte text-body-2 text-white" style="opacity: 0.9;">
+          Compartilhe este artigo
+        </p>
+      </div>
+
+      <div class="pa-8">
+        <div class="d-flex justify-center gap-6 mb-8">
+          <v-btn 
+            icon
+            size="60"
+            rounded="circle"
+            style="background-color: #25D366;"
+            @click="compartilharWhatsApp(postParaCompartilhar)"
+            class="share-btn shadow-lg"
+          >
+            <v-icon size="32" color="white">mdi-whatsapp</v-icon>
+          </v-btn>
+
+          <v-btn 
+            icon
+            size="60"
+            rounded="circle"
+            style="background-color: #1877F2;"
+            @click="compartilharFacebook(postParaCompartilhar)"
+            class="share-btn shadow-lg"
+          >
+            <v-icon size="32" color="white">mdi-facebook</v-icon>
+          </v-btn>
+
+          <v-btn 
+            icon
+            size="60"
+            rounded="circle"
+            style="background-color: #1DA1F2;"
+            @click="compartilharTwitter(postParaCompartilhar)"
+            class="share-btn shadow-lg"
+          >
+            <v-icon size="32" color="white">mdi-twitter</v-icon>
+          </v-btn>
+        </div>
+
+        <v-divider class="mb-6"></v-divider>
+
+        <v-btn 
+          prepend-icon="mdi-content-copy" 
+          color="secondary"
+          size="large"
+          class="fonte font-weight-bold w-100"
+          variant="outlined"
+          @click="copiarLink(postParaCompartilhar)"
+        >
+          Copiar Link
+        </v-btn>
+
+        <v-btn 
+          text
+          block
+          class="fonte mt-4"
+          @click="showShareModal = false"
+        >
+          Fechar
+        </v-btn>
+      </div>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useSeoMeta, navigateTo } from '#app'
 import { usePostagemStore } from '@/stores/postsStore'
 
 const postagemStore = usePostagemStore()
 const postDestaque = ref<any>(null)
 const liked = ref(false)
 const likesCount = ref(0)
-const snackbar = ref(false);
+const showShareModal = ref(false)
+const postParaCompartilhar = ref<any>(null)
 
 const loadPostDestaque = async () => {
     const dados = await postagemStore.carregarPostsPublico()
@@ -164,48 +240,43 @@ async function toggleLike() {
     }
 }
 
-const compartilhar = async (currentPost: any) => {
-  if (!currentPost || !currentPost.id) return;
+const abrirShareModal = (currentPost: any) => {
+  postParaCompartilhar.value = currentPost
+  showShareModal.value = true
+}
 
+const compartilharWhatsApp = (currentPost: any) => {
   const urlDoPost = `${window.location.origin}/postagem/${currentPost.id}`;
-  const tituloCompartilhar = `Confira este artigo: ${currentPost.titulo}`;
+  const mensagem = `Confira este artigo: ${currentPost.titulo}\n${urlDoPost}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+  window.open(whatsappUrl, '_blank');
+  showShareModal.value = false;
+};
 
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: currentPost.titulo,
-        text: tituloCompartilhar,
-        url: urlDoPost,
-      });
-      return;
-    } catch (error) {
-      if ((error as Error).name !== 'AbortError') console.error(error);
-    }
-  }
+const compartilharFacebook = (currentPost: any) => {
+  const urlDoPost = `${window.location.origin}/postagem/${currentPost.id}`;
+  const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(urlDoPost)}`;
+  window.open(facebookUrl, '_blank');
+  showShareModal.value = false;
+};
 
+const compartilharTwitter = (currentPost: any) => {
+  const urlDoPost = `${window.location.origin}/postagem/${currentPost.id}`;
+  const texto = `Confira este artigo: ${currentPost.titulo}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(texto)}&url=${encodeURIComponent(urlDoPost)}`;
+  window.open(twitterUrl, '_blank');
+  showShareModal.value = false;
+};
+
+const copiarLink = async (currentPost: any) => {
+  const urlDoPost = `${window.location.origin}/postagem/${currentPost.id}`;
   try {
-    const htmlLink = `<a href="${urlDoPost}" target="_blank">${currentPost.titulo}</a>`;
-
-    const blobHtml = new Blob([htmlLink], { type: 'text/html' });
-    const blobText = new Blob([urlDoPost], { type: 'text/plain' });
-
-    const clipboardItem = new ClipboardItem({
-      'text/html': blobHtml,
-      'text/plain': blobText
-    });
-
-    await navigator.clipboard.write([clipboardItem]);
-    snackbar.value = true;
-
+    await navigator.clipboard.writeText(urlDoPost);
+    alert("Link copiado para área de transferência!");
   } catch (err) {
-    console.error("Falha ao copiar link inteligente:", err);
-    try {
-      await navigator.clipboard.writeText(urlDoPost);
-      snackbar.value = true;
-    } catch (fallbackErr) {
-      alert("Copie a URL direto da barra de endereços.");
-    }
+    alert("Copie esta URL:\n" + urlDoPost);
   }
+  showShareModal.value = false;
 };
 
 const irParaPost = (post: any) => {
@@ -283,5 +354,14 @@ onMounted(() => {
 .text-body-2 :deep(*) {
   background: transparent !important;
   background-color: transparent !important;
+}
+
+.share-btn {
+  transition: all 0.3s ease !important;
+}
+
+.share-btn:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2) !important;
 }
 </style>

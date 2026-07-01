@@ -183,8 +183,6 @@ import { ref, onMounted } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue'
 import { usePostagemStore } from '~/stores/postsStore'
 import { useAlertStore } from "~/stores/alert"
-
-// IMPORTAÇÕES DO QUILL EDITOR ADICIONADAS AQUI
 import { QuillEditor } from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
