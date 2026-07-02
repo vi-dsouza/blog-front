@@ -5,15 +5,15 @@
     class="fill-height d-flex align-center justify-center"
   >
     <v-card class="containerLogin">
-      <v-card-title class="text-h5 font-weight-bold text-center pa-16 pt-0">
+      <v-card-title class="fonte text-h5 font-weight-bold text-center pa-16 pt-0">
         Nova Senha
       </v-card-title>
 
-      <p class="instrucao-text text-center">
+      <p class="fonte instrucao-text text-center">
         Digite e confirme a sua nova senha de acesso administrativo abaixo.
       </p>
       
-      <div class="input-group">
+      <div class="fonte input-group">
         <i class="mdi mdi-lock icon"></i>
         <input 
           v-model="password" 
@@ -24,11 +24,11 @@
       </div>
 
       <transition name="fade">
-        <span v-if="mensagem" class="feedback-text">{{ mensagem }}</span>
+        <span v-if="mensagem" class="fonte feedback-text">{{ mensagem }}</span>
       </transition>
 
       <v-btn 
-        class="btn-login" 
+        class="fonte btn-login" 
         :loading="loading" 
         @click="atualizarSenha"
       >
@@ -43,11 +43,11 @@ import { useAlertStore }  from '@/stores/alert'
 
 const password = ref('')
 const loading = ref(false)
-const route = useRoute() // Para pegar os parâmetros da URL
+const route = useRoute()
 const alertStore = useAlertStore()
 
 async function atualizarSenha() {
-  const token = route.query.token // Captura o ?token=XYZ da URL
+  const token = route.query.token
   
   if (!token) {
     alert("Token ausente ou inválido.")
@@ -71,6 +71,9 @@ async function atualizarSenha() {
 </script>
 
 <style scoped>
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
 .fill-height {
   height: 100vh !important;
   width: 100vw;

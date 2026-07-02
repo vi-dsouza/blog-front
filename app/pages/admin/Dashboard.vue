@@ -4,7 +4,7 @@
 
     <v-main class="main-scroll">
       <v-container fluid class="pa-4 pa-sm-8">
-        <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
+        <v-card-text class="fonte text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
           Visão Geral
         </v-card-text>
 
@@ -13,8 +13,8 @@
             <v-card border flat class="rounded-lg pa-4">
               <div class="d-flex justify-space-between align-center">
                 <div>
-                  <div class="text-overline mb-1">{{ stat.title }}</div>
-                  <div class="text-h4 font-weight-bold" style="color: #7B5CFF">{{ stat.value }}</div>
+                  <div class="fonte text-overline mb-1">{{ stat.title }}</div>
+                  <div class="fonte text-h4 font-weight-bold" style="color: #7B5CFF">{{ stat.value }}</div>
                 </div>
                 <v-icon size="36" color="grey-lighten-1">{{ stat.icon }}</v-icon>
               </div>
@@ -25,8 +25,8 @@
         <v-row class="mt-4">
           <v-col cols="12" md="8">
             <v-card border flat class="rounded-lg h-100 pa-4">
-              <v-card-title class="px-0">Engajamento de E-mails (Últimos Disparos)</v-card-title>
-              <v-sheet height="250" class="d-flex align-center justify-center">
+              <v-card-title class="fonte px-0">Engajamento de E-mails (Últimos Disparos)</v-card-title>
+              <v-sheet height="250" class="fonte d-flex align-center justify-center">
                 
                 <Bar :data="chartData" :options="chartOptions" />
                 
@@ -36,7 +36,7 @@
 
           <v-col cols="12" md="4">
             <v-card border flat class="rounded-lg h-100 pa-4">
-              <v-card-title class="px-0">Status dos Últimos Envios</v-card-title>
+              <v-card-title class="fonte px-0">Status dos Últimos Envios</v-card-title>
               <v-list lines="one">
                 <v-list-item
                   v-for="(disparo, idx) in statusDisparos"
@@ -44,22 +44,23 @@
                   :title="disparo.titulo"
                   :subtitle="disparo.detalhe"
                   prepend-icon="mdi-email-check-outline"
+                  class="fonte"
                 ></v-list-item>
               </v-list>
-              <v-btn block variant="text" color="#7B5CFF" class="mt-2">Ver todos no Resend</v-btn>
+              <v-btn block variant="text" color="#7B5CFF" class="fonte mt-2">Ver todos no Resend</v-btn>
             </v-card>
           </v-col>
 
           <v-col cols="12" class="mt-4">
             <v-card border flat class="rounded-lg pa-4">
-              <v-card-title class="px-0 d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-2">
+              <v-card-title class="fonte px-0 d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-2">
                 Posts Recentes
                 <v-btn to="/admin/nova-postagem" color="#7B5CFF" theme="dark" size="small" :block="$vuetify.display.xs">
                   Novo Post
                 </v-btn>
               </v-card-title>
               
-              <v-responsive class="overflow-x-auto">
+              <v-responsive class="fonte overflow-x-auto">
                 <v-table density="compact">
                   <thead>
                     <tr>
@@ -206,6 +207,9 @@ definePageMeta({
 </script>
 
 <style>
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
 .main-scroll {
   height: 100vh;
   overflow-y: auto;

@@ -4,14 +4,14 @@
 
     <v-main class="main-scroll">
       <v-container fluid class="pa-4 pa-sm-8" >
-        <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
+        <v-card-text class="fonte text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
           Administradores
         </v-card-text>
 
         <v-col cols="12" class="mt-4">
           <v-card border flat class="rounded-lg pa-4">
-            <v-card-title class="px-0 d-flex justify-space-between align-center">
-              Administradores do Blog
+            <v-card-title class="fonte px-0 d-flex justify-space-between align-center">
+              Gestores
               <v-btn @click="abrirModalCadastro" color="#7B5CFF" theme="dark" size="small">
                 Cadastrar
               </v-btn>
@@ -21,10 +21,10 @@
 
                   <div class="d-flex justify-space-between align-center mb-4 flex-shrink-0">
                     <div>
-                      <h2 class="text-h5 font-weight-bold">
+                      <h2 class="fonte text-h5 font-weight-bold">
                         {{ idSelecionado ? 'Editar Administrador' : 'Cadastrar Administrador' }}
                       </h2>
-                      <p class="text-caption text-grey mb-0">
+                      <p class="fonte text-caption text-grey mb-0">
                         {{ idSelecionado ? 'Altere os dados do administrador' : 'Preencha as informações para criar um novo usuário' }}
                       </p>
                     </div>
@@ -49,7 +49,7 @@
                             mdi-cloud-upload-outline
                           </v-icon>
 
-                          <span class="text-caption font-weight-medium text-center px-2">
+                          <span class="fonte text-caption font-weight-medium text-center px-2">
                             Clique para enviar a foto
                           </span>
 
@@ -86,7 +86,7 @@
                           v-model="form.nome"
                           variant="outlined"
                           density="compact"
-                          class="mb-3"
+                          class="fonte mb-3"
                           prepend-inner-icon="mdi-account"
                         />
 
@@ -95,7 +95,7 @@
                           v-model="form.email"
                           variant="outlined"
                           density="compact"
-                          class="mb-3"
+                          class="fonte mb-3"
                           prepend-inner-icon="mdi-email"
                         />
 
@@ -105,6 +105,7 @@
                           type="password"
                           variant="outlined"
                           density="compact"
+                          class="fonte"
                           prepend-inner-icon="mdi-lock"
                           :placeholder="idSelecionado ? 'Deixe em branco para manter a atual' : ''"
                         />  
@@ -120,7 +121,7 @@
                           counter="500"
                           maxlength="500"
                           rows="3"
-                          class="mb-2"
+                          class="fonte mb-2"
                         />
 
                         <v-switch 
@@ -128,12 +129,13 @@
                           v-model="form.is_admin"
                           color="success"
                           hide-details
+                          class="fonte"
                         />
                       </v-col>
                     </v-row>
                   </div>
 
-                  <div class="d-flex justify-end gap-3 pt-4 border-top flex-shrink-0">
+                  <div class="fonte d-flex justify-end gap-3 pt-4 border-top flex-shrink-0">
                     <v-btn variant="text" @click="fecharModal">
                       Cancelar
                     </v-btn>
@@ -148,7 +150,7 @@
 
             </v-card-title>
 
-            <v-table density="compact" >
+            <v-table class="fonte" density="compact" >
               <thead>
                 <tr>
                   <th class="text-left">Foto</th>
@@ -194,7 +196,7 @@
     </v-main>
   </v-app>
 
-  <v-dialog v-model="modalDelete" max-width="450">
+  <v-dialog v-model="modalDelete" class="fonte" max-width="450">
     <v-card>
       <v-toolbar flat color="#7B5CFF">
         <v-toolbar-title class="text-white font-weight-bold">Confirmar exclusão</v-toolbar-title>
@@ -338,6 +340,9 @@ onMounted(() => {
 html, body, #__nuxt, #app {
   height: 100%;
   margin: 0;
+}
+.fonte {
+  font-family: 'Georgia', serif !important;
 }
 .v-application {
   height: 100vh;

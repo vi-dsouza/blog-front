@@ -4,11 +4,11 @@
 
     <v-main class="main-scroll">
       <v-container fluid class="pa-4 pa-sm-8">
-        <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
+        <v-card-text class="fonte text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
           Nova Postagem
         </v-card-text>
 
-        <v-row class="ms-6 me-6">
+        <v-row class="fonte ms-6 me-6">
           <v-col cols="12" md="6">
             <v-text-field clearable v-model="titulo" label="Título da Postagem" variant="outlined" density="compact"></v-text-field>
           </v-col>
@@ -33,7 +33,7 @@
           </v-col>
 
           <v-col cols="12" md="4">
-            <label class="editor-label text-subtitle-2 mb-2 d-block">Capa do Post</label>
+            <label class="fonte editor-label text-subtitle-2 mb-2 d-block">Capa do Post</label>
             <v-sheet
               border="dashed md"
               color="grey-lighten-4"
@@ -42,7 +42,7 @@
               @click="$refs.fileInput.click()"
             >
               <v-icon size="40" color="#7B5CFF" class="mb-2">mdi-cloud-upload</v-icon>
-              <span class="text-subtitle-2 font-weight-bold text-center px-2">Clique para enviar a capa</span>
+              <span class="fonte text-subtitle-2 font-weight-bold text-center px-2">Clique para enviar a capa</span>
               
               <v-img v-if="urlPreview" :src="urlPreview" cover class="position-absolute rounded-lg w-100 h-100">
                 <div class="d-flex justify-end pa-2">
@@ -56,7 +56,7 @@
 
           <v-col cols="12" md="8">
             <div class="editor-wrapper">
-              <label class="editor-label text-subtitle-2 mb-2 d-block">Conteúdo do Post</label>
+              <label class="fonte editor-label text-subtitle-2 mb-2 d-block">Conteúdo do Post</label>
               
               <QuillEditor 
                 v-model:content="conteudo" 
@@ -68,8 +68,8 @@
           </v-col>
 
           <v-col cols="12" class="d-flex flex-column flex-sm-row justify-end ga-4 mt-4">
-            <v-btn variant="text" color="grey" class="order-last order-sm-first" @click="cancelar">Cancelar</v-btn>
-            <v-btn color="#7B5CFF" theme="dark" elevation="2" min-width="150" @click="publicarPostagem">Publicar</v-btn>
+            <v-btn variant="text" color="grey" class="fonte order-last order-sm-first" @click="cancelar">Cancelar</v-btn>
+            <v-btn color="#7B5CFF" theme="dark" elevation="2" min-width="150" class="fonte" @click="publicarPostagem">Publicar</v-btn>
           </v-col>
         </v-row>
       </v-container>
@@ -153,6 +153,10 @@ const cancelar = () => {
     html, body, #__nuxt, #app {
     height: 100%;
     margin: 0;
+    }
+
+    .fonte {
+      font-family: 'Georgia', serif !important;
     }
 
     .v-application {

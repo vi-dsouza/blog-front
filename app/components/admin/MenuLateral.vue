@@ -9,6 +9,7 @@
   >
       <template v-slot:prepend>
         <v-list-item 
+          class="fonte"
           lines="two" 
           :subtitle="isLoggedIn ? 'Conectado' : 'Desconectado'" 
           :title="userName"
@@ -24,7 +25,7 @@
 
     <v-divider></v-divider>
 
-    <v-list density="default" nav>
+    <v-list class="fonte" density="default" nav>
       <v-list-item prepend-icon="mdi-file-document-outline" title="Nova Postagem" to="/admin/nova-postagem"></v-list-item>
       <v-list-item prepend-icon="mdi-file-document" title="Postagens" to="/admin/postagens"></v-list-item>
       <v-list-item prepend-icon="mdi-chart-line" title="Dashboard" to="/admin/dashboard"></v-list-item>
@@ -34,7 +35,7 @@
 
     <template v-slot:append>
       <div class="pa-2">
-        <v-btn class="btn-sair" block @click="logout">
+        <v-btn class="fonte btn-sair" block @click="logout">
           Sair
         </v-btn>
       </div>
@@ -53,12 +54,8 @@
 import { ref, computed } from 'vue'
 
 const drawer = ref(true)
-
-// 1. Pegamos os cookies
 const token = useCookie('auth_token')
-const userCookie = useCookie('user') // Aqui assumimos que você salvou um objeto { nome: '...', ... }
-
-// 2. Criamos propriedades computadas para reagir a mudanças
+const userCookie = useCookie('user')
 const isLoggedIn = computed(() => !!token.value)
 const userName = computed(() => userCookie.value?.nome || 'Usuário')
 const userPhoto = computed(() => userCookie.value?.foto_url || 'smirk.png')
@@ -75,6 +72,9 @@ const logout = async () => {
 </script>
 
 <style scoped>
+  .fonte {
+    font-family: 'Georgia', serif !important;
+  }
   .btn-sair {
     height: 45px;
     border-radius: 12px;

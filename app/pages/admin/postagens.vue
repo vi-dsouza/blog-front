@@ -5,12 +5,12 @@
     <v-main class="main-scroll">
       <v-container fluid class="pa-4 pa-sm-8" >
         
-        <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
+        <v-card-text class="fonte text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
           Postagens
         </v-card-text>
 
         <v-card flat border class="mx-6">
-          <v-card-title class="d-flex align-center pe-2">
+          <v-card-title class="fonte d-flex align-center pe-2">
             <v-text-field
               v-model="search"
               density="compact"
@@ -29,6 +29,7 @@
             :search="search"
             :loading="postStore.loading"
             no-data-text="Nenhuma postagem encontrada"
+            class="fonte"
           >
             <template v-slot:item.post_url="{ item }">
               <v-avatar size="60" rounded="lg" class="my-2 border">
@@ -52,13 +53,13 @@
 
         <v-dialog v-model="modalEdicao" max-width="800px" persistent>
           <v-card class="rounded-xl pa-4">
-            <v-card-title class="text-h5 font-weight-bold d-flex justify-space-between align-center">
+            <v-card-title class="fonte text-h5 font-weight-bold d-flex justify-space-between align-center">
               Editar Postagem
               <v-btn icon="mdi-close" variant="text" @click="modalEdicao = false"></v-btn>
             </v-card-title>
             
             <v-card-text>
-              <v-row>
+              <v-row class="fonte">
                 <v-col cols="12" md="6">
                   <v-text-field v-model="editItem.titulo" label="Título" variant="outlined" density="compact" />
                 </v-col>
@@ -73,7 +74,7 @@
                 </v-col>
                 
                 <v-col cols="12" md="4">
-                  <label class="editor-label text-subtitle-2 mb-2 d-block">Capa do Post</label>
+                  <label class="fonte editor-label text-subtitle-2 mb-2 d-block">Capa do Post</label>
                   <v-sheet
                     border="dashed md"
                     color="grey-lighten-4"
@@ -83,7 +84,7 @@
                   >
                     <template v-if="!(previewImagem || editItem.post_url)">
                       <v-icon size="40" color="#7B5CFF" class="mb-2">mdi-cloud-upload</v-icon>
-                      <span class="text-subtitle-2 font-weight-bold text-center px-2">
+                      <span class="fonte text-subtitle-2 font-weight-bold text-center px-2">
                         Clique para enviar a imagem
                       </span>
                     </template>
@@ -116,7 +117,7 @@
 
                 <v-col cols="12" md="8">
                   <div class="editor-wrapper">
-                    <label class="editor-label text-subtitle-2 mb-2 d-block">Conteúdo do Post</label>
+                    <label class="fonte editor-label text-subtitle-2 mb-2 d-block">Conteúdo do Post</label>
                     
                     <QuillEditor 
                       v-model:content="editItem.conteudo" 
@@ -129,7 +130,7 @@
               </v-row>
             </v-card-text>
 
-            <v-card-actions class="justify-end px-6 pb-4">
+            <v-card-actions class="fonte justify-end px-6 pb-4">
               <v-btn variant="text" color="grey" @click="modalEdicao = false">Cancelar</v-btn>
               <v-btn color="#7B5CFF" variant="flat" class="text-white" elevation="2" min-width="120" :loading="postStore.loading" @click="salvarEdicao" >
                 Salvar Alterações
@@ -141,7 +142,7 @@
         <v-dialog v-model="modalDelete" max-width="450">
           <v-card >
             <v-toolbar flat color="#7B5CFF">
-              <v-toolbar-title class="text-white font-weight-bold">
+              <v-toolbar-title class="fonte text-white font-weight-bold">
                 Confirmar exclusão
               </v-toolbar-title>
               <v-btn
@@ -152,19 +153,19 @@
               />
             </v-toolbar>
 
-            <v-card-text class=" pt-4">
+            <v-card-text class="fonte pt-4">
               Tem certeza que deseja excluir o post
               <strong>"{{ postParaDeletar?.titulo }}"</strong>?
             </v-card-text>
 
-            <v-card-actions class="justify-end pb-4 px-4">
+            <v-card-actions class="fonte justify-end pb-4 px-4">
               <v-btn variant="text" color="grey" @click="modalDelete = false">
                 Cancelar
               </v-btn>
               <v-btn
                 color="red"
                 variant="flat"
-                class="text-white"
+                class="fonte text-white"
                 @click="deletarPostConfirmado"
               >
                 Excluir
@@ -278,6 +279,10 @@ const deletarPostConfirmado = async () => {
 html, body, #__nuxt, #app {
   height: 100%;
   margin: 0;
+}
+
+.fonte {
+  font-family: 'Georgia', serif !important;
 }
 
 .v-application {

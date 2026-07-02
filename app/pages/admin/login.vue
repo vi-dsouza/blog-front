@@ -5,31 +5,31 @@
     class="fill-height d-flex align-center justify-center"
   >
     <v-card class="containerLogin">
-      <v-card-title class="text-h5 font-weight-bold text-center pa-16 pt-0">
+      <v-card-title class="fonte text-h5 font-weight-bold text-center pa-16 pt-0">
         Painel do Administrador
       </v-card-title>
 
-      <div class="input-group">
+      <div class="fonte input-group">
         <i class="mdi mdi-email icon"></i>
         <input v-model="email" type="email" placeholder="E-mail" @keyup.enter="handleLogin" />
       </div>
 
-      <div class="input-group">
+      <div class="fonte input-group">
         <i class="mdi mdi-lock icon"></i>
         <input v-model="password" type="password" placeholder="Senha" @keyup.enter="handleLogin" />
       </div>
 
       <transition name="fade">
-        <span v-if="errorMsg" class="error-text">{{ errorMsg }}</span>
+        <span v-if="errorMsg" class="fonte error-text">{{ errorMsg }}</span>
       </transition>
 
-      <NuxtLink href="esqueci-senha" class="linkCadastro">
-        <v-icon size="18">mdi-account</v-icon>
+      <NuxtLink href="esqueci-senha" class="fonte linkCadastro">
+        <v-icon size="18">mdi-lock</v-icon>
         Esqueci minha senha
       </NuxtLink>
 
       <v-btn 
-        class="btn-login" 
+        class="fonte btn-login" 
         :loading="loading" 
         @click="handleLogin"
       >
@@ -41,14 +41,12 @@
 
 <script setup>
 
-// Reatividade para capturar os dados
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
 
 async function handleLogin() {
-  // 1. Mude para password.value aqui (para bater com seu ref)
   if (!email.value || !password.value) { 
     errorMsg.value = "Preencha todos os campos."
     return
@@ -66,30 +64,24 @@ async function handleLogin() {
       },
       body: { 
         email: email.value, 
-        senha: password.value  // 'senha' é como o Python espera, 'password.value' é sua ref do Vue
+        senha: password.value
       }
     })
 
-    // 2. Verificação de segurança: Só salva se o token vier na resposta
     if (data && data.token) {
-      // 1. Salva o token normalmente
       const token = useCookie('auth_token', { maxAge: 7200, sameSite: 'lax' })
       token.value = data.token
       
-      // 2. SALVE ESTA PARTE NOVA: Criando o cookie com os dados do usuário
       const user = useCookie('user', { maxAge: 7200, sameSite: 'lax' })
       user.value = {
         nome: data.user_nome,
         foto_url: data.user_foto ? `http://localhost:5000/uploads/${data.user_foto}` : '/smirk.png'
       }
-      
-      // 3. Redireciona
+
       await navigateTo('/admin/dashboard')
     }
     
   } catch (err) {
-    // Captura o erro vindo do Flask (401, 400, etc)
-    // errorMsg.value = err.data?.error || "Falha na autenticação."
     console.error("Erro detalhado do servidor:", err.response?._data || err);
     errorMsg.value = err.data?.error || "Falha na autenticação.";
   } finally {
@@ -99,6 +91,10 @@ async function handleLogin() {
 </script>
 
 <style scoped>
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
+
 .fill-height {
   height: 100vh !important;
   width: 100vw;
@@ -173,7 +169,6 @@ async function handleLogin() {
     gap: 6px;
     color: whitesmoke;
     text-decoration: none;
-    font-weight: 600;
     transition: 0.3s;
 }
 
@@ -221,7 +216,6 @@ async function handleLogin() {
   opacity: 0;
 }
 
-/* Garante que o loading do Vuetify não quebre seu gradiente */
 .btn-login :deep(.v-btn__content) {
   color: white;
 }

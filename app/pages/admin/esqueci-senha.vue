@@ -5,32 +5,32 @@
     class="fill-height d-flex align-center justify-center"
   >
     <v-card class="containerLogin">
-      <v-card-title class="text-h5 font-weight-bold text-center pa-16 pt-0">
+      <v-card-title class="fonte text-h5 font-weight-bold text-center pa-16 pt-0">
         Recuperar Senha
       </v-card-title>
       
-      <p class="instrucao-text text-center">
+      <p class="fonte instrucao-text text-center">
         Digite o seu e-mail cadastrado abaixo para receber um link de redefinição de senha.
       </p>
       
-      <div class="input-group">
+      <div class="fonte input-group">
         <i class="mdi mdi-email icon"></i>
         <input v-model="email" type="email" placeholder="Digite seu e-mail" @keyup.enter="enviarEmail" />
       </div>
 
       <transition name="fade">
-        <span v-if="mensagem" class="feedback-text">{{ mensagem }}</span>
+        <span v-if="mensagem" class="fonte feedback-text">{{ mensagem }}</span>
       </transition>
 
       <div class="acoes-links">
-        <NuxtLink href="login" class="linkVoltar">
+        <NuxtLink href="login" class="fonte linkVoltar">
           <v-icon size="16">mdi-arrow-left</v-icon>
           Voltar para o login
         </NuxtLink>
       </div>
 
       <v-btn 
-        class="btn-login" 
+        class="fonte btn-login" 
         :loading="loading" 
         @click="enviarEmail"
       >
@@ -62,6 +62,10 @@ async function enviarEmail() {
 </script>
 
 <style scoped>
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
+
 .fill-height {
   height: 100vh !important;
   width: 100vw;
@@ -148,7 +152,6 @@ async function enviarEmail() {
   gap: 6px;
   color: whitesmoke;
   text-decoration: none;
-  font-weight: 600;
   font-size: 14px;
   transition: 0.3s;
 }
@@ -164,7 +167,7 @@ async function enviarEmail() {
   background: linear-gradient(135deg, #7B5CFF);
   color: white;
   font-weight: 600;
-  text-transform: none; /* Evita que o Vuetify force caixa alta */
+  text-transform: none;
 }
 
 .feedback-text {

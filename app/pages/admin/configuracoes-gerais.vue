@@ -4,27 +4,28 @@
 
     <v-main class="main-scroll">
       <v-container fluid class="pa-4 pa-sm-8">
-        <v-card-text class="text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
+        <v-card-text class="fonte text-h5 font-weight-bold text-center text-sm-left ms-6 mt-n16 mb-2">
           Configurações Gerais do Blog
         </v-card-text>
 
         <v-row class="ms-6 me-6">
           <v-col cols="12" md="6">
-            <v-text-field v-model="nome_blog" clearable label="Nome do Blog" variant="outlined" density="compact"></v-text-field>
+            <v-text-field class="fonte" v-model="nome_blog" clearable label="Nome do Blog" variant="outlined" density="compact"></v-text-field>
           </v-col>
 
           <v-col cols="12" md="6">
-            <v-text-field v-model="data_atualizacao" label="Data da Atualização" type="date" variant="outlined" density="compact"></v-text-field>
+            <v-text-field class="fonte" v-model="data_atualizacao" label="Data da Atualização" type="date" variant="outlined" density="compact"></v-text-field>
           </v-col>
 
           <v-col cols="12" md="6" class="mt-n3">
-            <v-text-field v-model="autor" clearable label="Autor" variant="outlined" density="compact"></v-text-field>
+            <v-text-field class="fonte" v-model="autor" clearable label="Autor" variant="outlined" density="compact"></v-text-field>
           </v-col>
           
           <v-col cols="12" md="6" class="mt-n3">
             <v-combobox
               v-model="tags_selecionadas"
               label="Tags do Blog"
+              class="fonte"
               variant="outlined"
               density="compact"
               multiple
@@ -55,11 +56,11 @@
             >
               <template v-if="!urlPreview">
                 <v-icon size="40" color="#7B5CFF" class="mb-2">mdi-cloud-upload</v-icon>
-                <span class="text-subtitle-2 font-weight-bold text-center px-2">Clique para enviar o banner</span>
+                <span class="fonte text-subtitle-2 font-weight-bold text-center px-2">Clique para enviar o banner</span>
               </template>
               
               <v-img v-if="urlPreview" :src="urlPreview" cover class="position-absolute rounded-lg w-100 h-100">
-                <div class="d-flex justify-end pa-2">
+                <div class="fonte d-flex justify-end pa-2">
                   <v-btn icon="mdi-close" size="x-small" color="red" elevation="2" @click.stop="limparFoto"></v-btn>
                 </div>
               </v-img>
@@ -84,12 +85,14 @@
               rows="3"
               max-rows="3"
               color="#7B5CFF"
+              class="fonte"
             ></v-textarea>
           </v-col>
 
           <v-col cols="12" class="d-flex flex-column flex-sm-row justify-end ga-4">
-            <v-btn variant="text" color="grey" class="order-last order-sm-first" @click="carregarDadosIniciais">Cancelar</v-btn>
+            <v-btn variant="text" color="grey" class="fonte order-last order-sm-first" @click="carregarDadosIniciais">Cancelar</v-btn>
             <v-btn 
+              class="fonte"
               color="#7B5CFF" 
               theme="dark" 
               elevation="2" 
@@ -152,18 +155,17 @@ const handleSalvar = async () => {
   }
 
   try {
-    // Criamos o objeto de carga (payload)
     await configStore.criarConfig({
       nome_blog: nome_blog.value,
       data_atualizacao: data_atualizacao.value,
       autor: autor.value,
       tags_do_blog: tags_selecionadas.value.join(','),
       descricao_blog: descricao_blog.value,
-      banner: foto.value // Se 'foto.value' for null, a Store não deve enviar esse campo ou enviar vazio
+      banner: foto.value
     })
     
     alert('Configurações atualizadas com sucesso!')
-    await carregarDadosIniciais() // Recarrega para garantir sincronia com o banco
+    await carregarDadosIniciais()
   } catch (e) {
     alert('Erro ao salvar configurações.')
   }
@@ -180,7 +182,6 @@ const carregarDadosIniciais = async () => {
         tags_selecionadas.value = dados.tags_do_blog ? dados.tags_do_blog.split(',') : [];
 
         if (dados.banner_url) {
-            // URL ajustada para buscar na pasta raiz config_blog do servidor
             urlPreview.value = `http://localhost:5000/config_blog/${dados.banner_url}`;
         } else {
             urlPreview.value = null;
@@ -194,7 +195,17 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.main-scroll { height: 100vh; overflow-y: auto; }
-.hover-effect { transition: 0.3s; }
-.hover-effect:hover { background-color: #f3efff !important; border-color: #7B5CFF !important; }
+.main-scroll { 
+  height: 100vh; overflow-y: auto; 
+}
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
+.hover-effect { 
+  transition: 0.3s; 
+}
+.hover-effect:hover {
+  background-color: #f3efff !important; 
+  border-color: #7B5CFF !important; 
+}
 </style>
