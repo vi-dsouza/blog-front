@@ -307,11 +307,14 @@ const deletarConfirmado = async () => {
   alertStore.showSuccess("Administrador deletado com sucesso")
 }
 
-// CORREÇÃO: Refatorado para capturar corretamente a emissão do array
-function gerarPreview(arquivos: File | File[] | null) {
+function gerarPreview(arquivos: any) {
   if (!arquivos) return
   const arquivo = Array.isArray(arquivos) ? arquivos[0] : arquivos
-  urlPreview.value = URL.createObjectURL(arquivo)
+  
+  if (arquivo) {
+    fotoArray.value = [arquivo]
+    urlPreview.value = URL.createObjectURL(arquivo)
+  }
 }
 
 const resetForm = () => {

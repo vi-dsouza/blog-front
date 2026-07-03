@@ -113,8 +113,10 @@
 import { ref, onMounted } from 'vue'
 import MenuLateral from '~/components/admin/MenuLateral.vue';
 import { useConfiguracaoStore } from '~/stores/configStore'
+import { useAlertStore } from '~/stores/alert'
 
 const configStore = useConfiguracaoStore()
+const alertStore = useAlertStore()
 const fileInput = ref<any>(null)
 
 // Refs reativas
@@ -150,7 +152,7 @@ const limparFoto = () => {
 
 const handleSalvar = async () => {
   if (!nome_blog.value || !autor.value || !data_atualizacao.value) {
-    alert('Preencha os campos obrigatórios!')
+    alertStore.showInfo('Preencha os campos obrigatórios!')
     return
   }
 
@@ -164,10 +166,10 @@ const handleSalvar = async () => {
       banner: foto.value
     })
     
-    alert('Configurações atualizadas com sucesso!')
+    alertStore.showSuccess('Configurações atualizadas com sucesso!')
     await carregarDadosIniciais()
   } catch (e) {
-    alert('Erro ao salvar configurações.')
+    alertStore.showError('Erro ao salvar configurações.')
   }
 }
 

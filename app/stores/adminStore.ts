@@ -104,26 +104,22 @@ export const useAdminStore = defineStore('admin', () => {
 
         try {
             const formData = new FormData();
-            
-            // Adicionamos ao FormData apenas o que foi passado no payload
-            if (payload.nome) formData.append('nome', payload.nome);
-            if (payload.email) formData.append('email', payload.email);
-            if (payload.biografia) formData.append('biografia', payload.biografia);
-            if (payload.is_admin !== undefined) {
-                formData.append('is_admin', String(payload.is_admin));
-            }
-            if (payload.senha) {
-                formData.append('senha', payload.senha);
-            }
-            if (payload.foto) {
+
+            formData.append('nome', payload.nome || '');
+            formData.append('email', payload.email || '');
+            formData.append('biografia', payload.biografia || '');
+            formData.append('senha', payload.senha || '');
+            formData.append('is_admin', payload.is_admin ? 'true' : 'false');
+
+            if (payload.foto instanceof File) {
                 formData.append('foto', payload.foto);
+            } else {
+                formData.append('foto', ''); 
             }
 
             const response = await axios.put(`http://localhost:5000/auth/admin/edit/${id}`, formData, getHeaders());
 
-            // Atualiza a lista local para refletir a mudança sem precisar recarregar a página
             await busca_admins(); 
-            
             return response.data;
         } catch (err: any) {
             error.value = err.response?.data?.error || "Erro ao atualizar administrador";
