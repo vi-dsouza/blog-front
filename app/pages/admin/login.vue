@@ -31,59 +31,102 @@
       <v-btn 
         class="fonte btn-login" 
         :loading="loading" 
+        :disabled="isButtonDisabled"
         @click="handleLogin"
       >
-        Entrar
+        <span v-if="cooldownSeconds > 0">Bloqueado ({{ cooldownSeconds }}s)</span>
+        <span v-else>Entrar</span>
       </v-btn>
     </v-card>
   </v-img>
 </template>
 
 <script setup>
-
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
 
+const cooldownSeconds = ref(0)
+const timerInterval = ref(null)
+const isButtonDisabled = computed(() => loading.value || cooldownSeconds.value > 0)
+
+function startCooldown(seconds) {
+  cooldownSeconds.value = seconds
+  clearInterval(timerInterval.value)
+
+  timerInterval.value = setInterval(() => {
+    if (cooldownSeconds.value > 1) {
+      cooldownSeconds.value--
+    } else {
+      cooldownSeconds.value = 0
+      errorMsg.value = '' 
+      clearInterval(timerInterval.value)
+    }
+  }, 1000)
+}
+
+onUnmounted(() => {
+  clearInterval(timerInterval.value)
+})
+
 async function handleLogin() {
-  if (!email.value || !password.value) { 
-    errorMsg.value = "Preencha todos os campos."
+  if (isButtonDisabled.value) return
+  if (!email.value || !password.value) {
+    errorMsg.value = 'Preencha todos os campos.'
     return
   }
 
   loading.value = true
-  errorMsg.value = ""
+  errorMsg.value = ''
 
   try {
     const data = await $fetch('http://localhost:5000/auth/login', {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      body: { 
-        email: email.value, 
+      body: {
+        email: email.value,
         senha: password.value
       }
     })
 
-    if (data && data.token) {
+    if (data?.token) {
       const token = useCookie('auth_token', { maxAge: 7200, sameSite: 'lax' })
       token.value = data.token
-      
+
       const user = useCookie('user', { maxAge: 7200, sameSite: 'lax' })
       user.value = {
         nome: data.user_nome,
-        foto_url: data.user_foto ? `http://localhost:5000/uploads/${data.user_foto}` : '/smirk.png'
+        foto_url: data.user_foto
+          ? `http://localhost:5000/uploads/${data.user_foto}`
+          : '/smirk.png'
       }
 
       await navigateTo('/admin/dashboard')
     }
-    
   } catch (err) {
-    console.error("Erro detalhado do servidor:", err.response?._data || err);
-    errorMsg.value = err.data?.error || "Falha na autenticação.";
+    const serverError =
+      err?.data ||
+      err?.response?._data ||
+      err?.response?.body ||
+      {}
+
+    errorMsg.value =
+      serverError.error ||
+      serverError.message ||
+      'Falha na autenticação.'
+
+    if (err?.response?.status === 403) {
+      const match = errorMsg.value.match(/\d+/)
+      const secondsToWait = match ? parseInt(match[0], 10) : 60
+      
+      startCooldown(secondsToWait)
+    }
+
+    console.error('Erro do login:', err)
   } finally {
     loading.value = false
   }
