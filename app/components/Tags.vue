@@ -1,7 +1,6 @@
 <template>
   <div class="tag-carousel-wrapper">
     <div class="tag-carousel">
-      <!-- Removido o 'ma-4' que causava o grande espaçamento externo -->
       <div class="tag-track">
         <v-card
           v-for="(tag, index) in repeatedTags"
@@ -41,12 +40,11 @@ onMounted(loadTags)
   width: 100%;
   overflow: hidden;
   position: relative;
-  padding: 0; /* Zerado o espaçamento do container principal */
+  padding: 0;
   background: transparent !important;
   border-bottom: 1px solid rgba(212, 175, 55, 0.15);
 }
 
-/* Efeito de fade nas laterais */
 .tag-carousel-wrapper::before,
 .tag-carousel-wrapper::after {
   content: "";
@@ -69,13 +67,12 @@ onMounted(loadTags)
 
 .tag-carousel {
   width: 100%;
-  /* Apenas um pequeno respiro de 6px para o efeito de "subir" no hover não cortar a tag */
   padding: 6px 0; 
 }
 
 .tag-track {
   display: flex;
-  gap: 16px; /* Espaço entre as tags ligeiramente mais compacto */
+  gap: 16px;
   width: max-content;
   animation: scroll-tags 40s linear infinite;
   transition: animation-play-state 0.5s ease-in-out;
@@ -90,15 +87,12 @@ onMounted(loadTags)
   padding: 6px 16px !important; 
   height: auto !important;
   
-  /* Alterado para preto com 20% de opacidade */
   background: rgba(0, 0, 0, 0.2) !important;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   
-  /* Cor do texto: Bege/Creme suave */
   color: #F4EFEB !important;
   
-  /* Borda minimalista dourada */
   border: 1px solid rgba(212, 175, 55, 0.15) !important;
   border-radius: 30px !important;
   
@@ -123,8 +117,7 @@ onMounted(loadTags)
   background: rgba(110, 73, 184, 0.12) !important;
   border-color: rgba(212, 175, 55, 0.6) !important;
   color: #FFFFFF !important;
-  transform: translateY(-2px); /* Mantém o micro movimento sem quebrar o layout */
-  
+  transform: translateY(-2px); 
   box-shadow: 
     0 6px 15px rgba(110, 73, 184, 0.2),
     0 0 8px rgba(212, 175, 55, 0.1) !important;

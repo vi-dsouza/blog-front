@@ -33,7 +33,6 @@
       </v-row>
     </div>
 
-    <!-- Divisor minimalista sutil em tom dourado -->
     <v-divider class="my-4 custom-divider" thickness="1" width="40"></v-divider>
     <p class="fonte text-body-2 px-4 quote-text">"Feito com ❤️, café e algumas linhas de código."</p>
     <v-divider class="my-4 custom-divider" thickness="1" width="40"></v-divider>
@@ -58,14 +57,11 @@
   font-family: 'Georgia', serif !important;
 }
 
-/* Fundo Preto Puro com a bordinha superior dourada sutil */
 .custom-footer {
   background: #000000 !important; 
-  /* Bordinha dourada no topo em harmonia com os elementos visuais do banner */
   border-top: 1px solid rgba(212, 175, 55, 0.3) !important; 
 }
 
-/* Títulos em Branco Puro */
 .footer-title {
   color: #FFFFFF !important;
   font-size: 0.9rem;
@@ -75,21 +71,18 @@
   margin-bottom: 8px;
 }
 
-/* Textos informativos em Bege Acinzentado Neutro */
 .footer-text {
   color: #D1C7BD !important;
   font-size: 0.85rem;
   opacity: 0.9;
 }
 
-/* Frase em Branco com opacidade de texto clássico de editorial */
 .quote-text {
   color: #FFFFFF !important;
   font-style: italic;
   opacity: 0.7;
 }
 
-/* Links limpos que mudam levemente de opacidade */
 .footer-link {
   color: #D1C7BD !important;
   font-size: 0.85rem;
@@ -102,7 +95,6 @@
   text-decoration: underline;
 }
 
-/* Botões de redes sociais discretos */
 .social-btn {
   color: #D1C7BD !important;
   opacity: 0.8;
@@ -110,22 +102,17 @@
 }
 
 .social-btn:hover {
-  color: #9d4edd !important; /* Toque de Roxo sofisticado apenas no foco */
+  color: #9d4edd !important;
   transform: translateY(-1px);
 }
 
-/* Divisor dourado sutil no meio do conteúdo */
 .custom-divider {
-  /* Dourado suave e sutil */
   border-color: rgba(212, 175, 55, 0.6) !important;
   margin-left: auto;
   margin-right: auto;
-  
-  /* Um leve brilho dourado bem discreto nas linhas */
   box-shadow: 0 0 4px rgba(212, 175, 55, 0.1) !important;
 }
 
-/* Direitos autorais discretos */
 .copyright-text {
   color: #D1C7BD !important;
   opacity: 0.5;
