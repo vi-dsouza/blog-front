@@ -35,6 +35,8 @@ const getHeaders = () => {
 }
 
 export const useConfiguracaoStore = defineStore('config', () => {
+    const runtimeConfig = useRuntimeConfig()
+    const apiBase = runtimeConfig.public.apiBase
     const loading = ref(false);
     const error = ref<string | null>(null);
     const config = ref<any[]>([]);
@@ -45,32 +47,26 @@ export const useConfiguracaoStore = defineStore('config', () => {
 
         try {
             const formData = new FormData();
-
-            // 1. Tratamento de Data
             let dataFinal: string = '';
 
             if (payload.data_atualizacao instanceof Date) {
-                // Adicionado "|| ''" aqui também para garantir que o TS não reclame do [0]
                 dataFinal = payload.data_atualizacao.toISOString().split('T')[0] || '';
             } else if (typeof payload.data_atualizacao === 'string') {
-                // Garante que o resultado seja sempre string
                 dataFinal = payload.data_atualizacao.split('T')[0] || '';
             }
 
-            // 2. Montagem do FormData com os textos
             formData.append('nome_blog', payload.nome_blog);
             formData.append('data_atualizacao', dataFinal);
             formData.append('autor', payload.autor);
             formData.append('tags_do_blog', payload.tags_do_blog);
             formData.append('descricao_blog', payload.descricao_blog);
 
-            // 3. Tratamento do Banner
             if (payload.banner instanceof File) {
                 formData.append('banner', payload.banner);
             }
 
             const response = await axios.post(
-                'http://localhost:5000/blog/configuracao', 
+                `${apiBase}/blog/configuracao`, 
                 formData, 
                 getHeaders()
             );
@@ -98,7 +94,7 @@ export const useConfiguracaoStore = defineStore('config', () => {
 
         loading.value = true;
         try {
-            const response = await axios.get('http://localhost:5000/blog/configuracao', getHeaders());
+            const response = await axios.get(`${apiBase}/blog/configuracao`, getHeaders());
             cachedConfig = { data: response.data, timestamp: Date.now() };
             return response.data;
         } catch (err: any) {
@@ -116,7 +112,7 @@ export const useConfiguracaoStore = defineStore('config', () => {
 
         loading.value = true;
         try {
-            const response = await axios.get('http://localhost:5000/blog/configuracao');
+            const response = await axios.get(`${apiBase}/blog/configuracao`);
             cachedConfigPublico = { data: response.data, timestamp: Date.now() };
             return response.data;
         } catch (err: any) {

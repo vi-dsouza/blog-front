@@ -115,11 +115,11 @@ import MenuLateral from '~/components/admin/MenuLateral.vue';
 import { useConfiguracaoStore } from '~/stores/configStore'
 import { useAlertStore } from '~/stores/alert'
 
+const runtimeConfig = useRuntimeConfig()
+const apiBase = runtimeConfig.public.apiBase
 const configStore = useConfiguracaoStore()
 const alertStore = useAlertStore()
 const fileInput = ref<any>(null)
-
-// Refs reativas
 const nome_blog = ref('')
 const data_atualizacao = ref('')
 const autor = ref('')
@@ -184,7 +184,7 @@ const carregarDadosIniciais = async () => {
         tags_selecionadas.value = dados.tags_do_blog ? dados.tags_do_blog.split(',') : [];
 
         if (dados.banner_url) {
-            urlPreview.value = `http://localhost:5000/config_blog/${dados.banner_url}`;
+            urlPreview.value = `${apiBase}/config_blog/${dados.banner_url}`;
         } else {
             urlPreview.value = null;
         }

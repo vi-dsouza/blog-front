@@ -99,24 +99,23 @@
               :src="post.post_url || '/placeholder.png'"
               :alt="post.titulo"
               class="rounded-xl mb-8 post-main-image"
-              contain
+              cover
             ></v-img>
 
-            <div class="fonte post-content" v-html="post.conteudo"></div>
+            <div class="fonte post-content conteudo-post" v-html="post.conteudo"></div>
 
           </v-card>
 
-          <!-- Modal de Compartilhamento -->
           <v-dialog v-model="showShareModal" max-width="420">
             <v-card 
               flat
               class="rounded-xl" 
               color="#FFFDF9"
-              style="border: 2px solid rgb(var(--v-theme-primary));"
+              style="border: 2px solid rgb(var(--v-theme-surface));"
             >
               <div 
                 class="pa-8 text-center position-relative overflow-hidden"
-                style="background: linear-gradient(135deg, rgb(var(--v-theme-primary)), rgba(var(--v-theme-primary), 0.7));"
+                style="background: linear-gradient(135deg, rgb(var(--v-theme-surface)), rgba(var(--v-theme-surface), 0.7));"
               >
                 <h3 class="fonte text-h5 font-weight-bold text-white mb-2">
                   {{ post.titulo }}
@@ -203,6 +202,8 @@ import { useAlertStore } from '@/stores/alert';
 import Banner from '@/components/Banner.vue';
 import Footer from '@/components/Footer.vue';
 
+const runtimeConfig = useRuntimeConfig()
+const apiBase = runtimeConfig.public.apiBase
 const route = useRoute(); 
 const postagemStore = usePostagemStore();
 const alertStore = useAlertStore();
@@ -343,6 +344,13 @@ onMounted(loadPostData);
   height: auto;
   min-height: 220px;
   max-height: 480px;
+  /* Removemos o border-radius e o overflow daqui para não arredondar o contêiner invisível largo */
+}
+
+/* Aplicamos o arredondamento e o recorte direto na imagem física interna do Vuetify */
+.post-main-image :deep(.v-img__img) {
+  border-radius: 24px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra para destacar */
 }
 
 .post-content {
@@ -350,6 +358,39 @@ onMounted(loadPostData);
   line-height: 1.8 !important;
   font-size: 1.05rem !important;
   letter-spacing: 0.01rem;
+}
+
+.conteudo-post :deep(p:has(img)) {
+  margin-bottom: 0.25rem !important;
+}
+
+.conteudo-post :deep(img) {
+  display: block;
+  margin: 2rem auto 0.25rem auto; 
+  border-radius: 12px;
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); 
+}
+
+.conteudo-post :deep(p:has(img) + p em) {
+  display: block;
+  text-align: center;
+  color: #757575 !important;   
+  font-size: 0.88rem !important;  
+  margin-top: 0px;
+  margin-bottom: 2rem;           
+}
+
+.conteudo-post :deep(.ql-video) {
+  display: block;
+  margin: 2rem auto;
+  border-radius: 12px;
+  width: 50%;                  
+  max-width: 100%;              
+  aspect-ratio: 16 / 9;        
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .post-content :deep(p) {

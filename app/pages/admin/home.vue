@@ -1,7 +1,6 @@
 <template>
     <v-app>
         <MenuLateral />
-
     </v-app>
 </template>
 

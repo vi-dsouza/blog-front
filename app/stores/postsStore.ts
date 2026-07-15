@@ -36,6 +36,8 @@ const getHeaders = () => {
 }
 
 export const usePostagemStore = defineStore('posts', () => {
+    const runtimeConfig = useRuntimeConfig()
+    const apiBase = runtimeConfig.public.apiBase
     const loading = ref(false);
     const error = ref<string | null>(null);
     const config = ref<any[]>([]);
@@ -67,7 +69,7 @@ export const usePostagemStore = defineStore('posts', () => {
             }
 
             const response = await axios.post(
-                'http://localhost:5000/post/postar', 
+                `${apiBase}/post/postar`, 
                 formData, 
                 getHeaders()
             );
@@ -92,7 +94,7 @@ export const usePostagemStore = defineStore('posts', () => {
 
         loading.value = true;
         try {
-            const response = await axios.get('http://localhost:5000/post/postagens', getHeaders());
+            const response = await axios.get(`${apiBase}/post/postagens`, getHeaders());
             const data = Array.isArray(response.data) ? response.data : [response.data];
             cachedPosts = { data, timestamp: Date.now() };
             posts.value = data;
@@ -114,7 +116,7 @@ export const usePostagemStore = defineStore('posts', () => {
 
         loading.value = true;
         try {
-            const response = await axios.get('http://localhost:5000/post/postagens');
+            const response = await axios.get(`${apiBase}/post/postagens`);
             const data = Array.isArray(response.data) ? response.data : [response.data];
             cachedPostsPublico = { data, timestamp: Date.now() };
             posts.value = data;
@@ -138,7 +140,7 @@ export const usePostagemStore = defineStore('posts', () => {
         error.value = null
 
         try {
-            await axios.delete(`http://localhost:5000/post/del_post/${id_post}`, getHeaders())
+            await axios.delete(`${apiBase}/post/del_post/${id_post}`, getHeaders())
             invalidarCache()
             config.value = config.value.filter(a => a.id !== id_post)
         } catch (err: any) {
@@ -175,7 +177,7 @@ export const usePostagemStore = defineStore('posts', () => {
                 console.log("📸 Nova imagem detectada no payload");
             }
 
-            const response = await axios.put(`http://localhost:5000/post/update_post/${id_post}`, formData, getHeaders());
+            const response = await axios.put(`${apiBase}/post/update_post/${id_post}`, formData, getHeaders());
 
             await carregarPosts(); 
             invalidarCache();
@@ -191,7 +193,7 @@ export const usePostagemStore = defineStore('posts', () => {
     async function contar_posts() {
         loading.value = true;
         try {
-            const response = await axios.get('http://localhost:5000/post/qtd_posts', getHeaders());
+            const response = await axios.get(`${apiBase}/post/qtd_posts`, getHeaders());
             return response.data;
         } finally {
             loading.value = false;
@@ -201,7 +203,7 @@ export const usePostagemStore = defineStore('posts', () => {
     async function alternarCurtidaNoServidor(id_post: number, action: 'like' | 'unlike') {
         try {
             const response = await axios.post(
-                `http://localhost:5000/post/curtir/${id_post}/like`, 
+                `${apiBase}/post/curtir/${id_post}/like`, 
                 { action },
                 { headers: { 'Content-Type': 'application/json' } } 
             );
@@ -217,6 +219,37 @@ export const usePostagemStore = defineStore('posts', () => {
         }
     }
 
+    async function uploadImagem(file: File): Promise<string> {
+        loading.value = true;
+        error.value = null;
+
+        try {
+            const formData = new FormData();
+            formData.append('image', file); 
+
+            const response = await axios.post(
+                `${apiBase}/post/upload`, 
+                formData, 
+                {
+                    headers: {
+                        ...getHeaders().headers,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+
+            return response.data.url;
+
+        } catch (err: any) {
+            const mensagemErro = err.response?.data?.error || err.response?.data?.message || 'Erro ao fazer upload da imagem!';
+            error.value = mensagemErro;
+            console.error("Erro no upload da imagem interna: ", err.response?.data);
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    }
+
     return { 
         criarPost, 
         carregarPosts,
@@ -226,6 +259,7 @@ export const usePostagemStore = defineStore('posts', () => {
         contar_posts,
         invalidarCache,
         alternarCurtidaNoServidor,
+        uploadImagem,
         loading, 
         error, 
         config,

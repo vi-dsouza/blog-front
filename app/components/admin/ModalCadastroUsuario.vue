@@ -31,21 +31,16 @@ function fechar() {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  backdrop-filter: blur(2px); /* Suaviza o fundo para isolar o modal */
+  backdrop-filter: blur(2px); 
 }
 
 .modal {
   background: white;
   padding: 28px;
   border-radius: 16px;
-  
-  /* LARGURA CONTROLADA: Impede o modal de esticar/encolher horizontalmente */
   width: 600px; 
   max-width: 92vw; 
-  
-  /* ALTURA DE SEGURANÇA: Evita que o modal mude de tamanho caso mensagens de erro sumam/apareçam */
   min-height: 300px; 
-
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);

@@ -15,6 +15,9 @@
 import { onMounted, ref } from 'vue'
 import { useConfiguracaoStore } from '@/stores/configStore'
 
+const runtimeConfig = useRuntimeConfig()
+const apiBase = runtimeConfig.public.apiBase
+
 const configStore = useConfiguracaoStore()
 const bannerUrl = ref('https://via.placeholder.com/1200x400?text=Banner+Padr%C3%A3o')
 
@@ -22,7 +25,7 @@ const loadBanner = async () => {
   const dados = await configStore.carregarConfigPublico()
 
   if (dados?.banner_url) {
-    bannerUrl.value = `http://localhost:5000/config_blog/${dados.banner_url}`
+    bannerUrl.value = `${apiBase}/config_blog/${dados.banner_url}`
   }
 }
 

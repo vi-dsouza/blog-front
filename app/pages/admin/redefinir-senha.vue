@@ -41,6 +41,8 @@
 <script setup>
 import { useAlertStore }  from '@/stores/alert'
 
+const runtimeConfig = useRuntimeConfig()
+const apiBase = runtimeConfig.public.apiBase
 const password = ref('')
 const loading = ref(false)
 const route = useRoute()
@@ -56,7 +58,7 @@ async function atualizarSenha() {
 
   loading.value = true
   try {
-    await $fetch('http://localhost:5000/auth/redefinir-senha', {
+    await $fetch(`${apiBase}/auth/redefinir-senha`, {
       method: 'POST',
       body: { token, password: password.value }
     })

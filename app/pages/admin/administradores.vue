@@ -226,11 +226,8 @@ definePageMeta({
 
 const alertStore = useAlertStore()
 const adminStore = useAdminStore()
-
-// CORREÇÃO: Vuetify trabalha melhor vinculando arrays no v-model do v-file-input
 const fotoArray = ref<File[]>([])
 const idSelecionado = ref<number | null>(null)
-
 const modalDelete = ref(false)
 const adminParaDeletar = ref<any>(null)
 const cadastroAdmin = ref(false)
@@ -246,7 +243,6 @@ const form = ref({
 
 const handleSalvar = async () => {
   try {
-    // Coleta a foto se ela existir no array reativo
     const arquivoFinal = fotoArray.value.length > 0 ? fotoArray.value[0] : null
     const dados = { ...form.value, foto: arquivoFinal };
 

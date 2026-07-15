@@ -59,10 +59,13 @@
               <label class="fonte editor-label text-subtitle-2 mb-2 d-block">Conteúdo do Post</label>
               
               <QuillEditor 
+                ref="meuEditor"
                 v-model:content="conteudo" 
                 contentType="html" 
                 theme="snow"
+                :options="editorOptions"
                 placeholder="Escreva e estilize o conteúdo do seu post aqui..."
+                @update:content="conteudo = $event"
               />
             </div>
           </v-col>
@@ -101,6 +104,55 @@ const conteudo = ref('')
 const post = ref<File | null>(null)
 const urlPreview = ref<string | null>(null)
 
+const meuEditor = ref<any>(null)
+
+const imageHandler = () => {
+  const input = document.createElement('input')
+  input.setAttribute('type', 'file')
+  input.setAttribute('accept', 'image/*')
+  input.click()
+
+  input.onchange = async () => {
+    const file = input.files?.[0]
+    if (!file) return
+
+    try {
+      alertStore.showSuccess("Enviando imagem, por favor aguarde...")
+
+      const urlDaImagemSalva = await postagemStore.uploadImagem(file)
+
+      const quill = meuEditor.value.getQuill()
+      const range = quill.getSelection()
+      const posicaoCursor = range ? range.index : quill.getLength()
+
+      quill.insertEmbed(posicaoCursor, 'image', urlDaImagemSalva)
+      quill.setSelection(posicaoCursor + 1)
+
+    } catch (error: any) {
+      console.error("Erro no upload da imagem interna:", error)
+      alertStore.showError("Falha ao subir imagem interna do texto. Tente novamente.")
+    }
+  }
+}
+
+const editorOptions = {
+  theme: 'snow',
+  modules: {
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],       
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],    
+        ['link', 'image', 'video'], 
+        ['clean']                                        
+      ],
+      handlers: {
+        image: imageHandler
+      }
+    }
+  }
+}
+
 const gerarPreview = (event: any) => {
   const file = event.target.files[0]
   if (file) {
@@ -115,7 +167,11 @@ const limparFoto = () => {
 }
 
 const publicarPostagem = async () => {
-  if (!titulo.value || !conteudo.value || !autor.value) {
+  const textoLimpo = conteudo.value 
+    ? conteudo.value.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim() 
+    : '';
+
+  if (!titulo.value || !textoLimpo || !autor.value) {
     alertStore.showError("Por favor, preencha os campos obrigatórios (Título, Autor e Conteúdo).")
     return
   }
@@ -131,9 +187,7 @@ const publicarPostagem = async () => {
     }
 
     await postagemStore.criarPost(payload)
-    
     alertStore.showSuccess("Postagem publicada com sucesso!")
-    
     router.push('/admin/dashboard') 
 
   } catch (error: any) {
@@ -150,42 +204,42 @@ const cancelar = () => {
 </script>
 
 <style scoped>
-    html, body, #__nuxt, #app {
-    height: 100%;
-    margin: 0;
-    }
+html, body, #__nuxt, #app {
+  height: 100%;
+  margin: 0;
+}
 
-    .fonte {
-      font-family: 'Georgia', serif !important;
-    }
+.fonte {
+  font-family: 'Georgia', serif !important;
+}
 
-    .v-application {
-    height: 100vh;
-    overflow: hidden;
-    }
+.v-application {
+  height: 100vh;
+  overflow: hidden;
+}
 
-    .main-scroll {
-    height: 100vh;
-    overflow-y: auto;
-    }
+.main-scroll {
+  height: 100vh;
+  overflow-y: auto;
+}
 
-  .hover-effect {
-    transition: 0.3s;
-    cursor: pointer;
-  }
-  .hover-effect:hover {
-    background-color: #f3efff !important;
-    border-color: #7B5CFF !important;
-  }
+.hover-effect {
+  transition: 0.3s;
+  cursor: pointer;
+}
+.hover-effect:hover {
+  background-color: #f3efff !important;
+  border-color: #7B5CFF !important;
+}
 
-  .editor-wrapper {
-    --quill-color: #7B5CFF;
-  }
+.editor-wrapper {
+  --quill-color: #7B5CFF;
+}
 
-  .editor-label {
-    color: var(--quill-color);
-    font-weight: 600;
-  }
+.editor-label {
+  color: var(--quill-color);
+  font-weight: 600;
+}
 
 .editor-wrapper :deep(.ql-container.ql-snow) {
   border-bottom-left-radius: 12px;
@@ -203,11 +257,80 @@ const cancelar = () => {
   background-color: #fafafa;
 }
 
-.editor-wrapper {
-  --quill-color: #7B5CFF;
-}
 .editor-wrapper :deep(.ql-container:focus-within),
 .editor-wrapper :deep(.ql-toolbar:focus-within) {
   border-color: var(--quill-color) !important;
+}
+
+.editor-wrapper :deep(.ql-editor p:has(img)) {
+  margin-bottom: 0.25rem !important;
+}
+
+.editor-wrapper :deep(.ql-editor img) {
+  display: block;
+  margin: 1.5rem auto 0.25rem auto;
+  border-radius: 8px;
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.editor-wrapper :deep(.ql-editor p:has(img) + p em) {
+  display: block;
+  text-align: center;
+  color: #757575 !important;
+  font-size: 0.85rem !important;
+  margin-top: 0px;
+  margin-bottom: 1.5rem;
+}
+
+.editor-wrapper :deep(.ql-editor .ql-video) {
+  display: block;
+  margin: 1.5rem auto;
+  border-radius: 8px;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.editor-wrapper :deep(.ql-container) {
+  position: relative;
+}
+
+.editor-wrapper :deep(.ql-snow .ql-tooltip) {
+  z-index: 1000 !important;
+  background-color: #ffffff !important;
+  border: 1px solid #7B5CFF !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+  padding: 8px 12px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+
+.editor-wrapper :deep(.ql-snow .ql-tooltip input[type=text]) {
+  background-color: #ffffff !important;
+  color: #333333 !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  font-size: 0.9rem !important;
+  outline: none !important;
+}
+
+.editor-wrapper :deep(.ql-snow .ql-tooltip input[type=text]:focus) {
+  border-color: #7B5CFF !important;
+}
+
+.editor-wrapper :deep(.ql-snow .ql-tooltip a.ql-action::after) {
+  content: 'Salvar' !important;
+  font-weight: bold;
+  color: #7B5CFF !important;
+}
+
+.editor-wrapper :deep(.ql-snow .ql-tooltip a.ql-remove::before) {
+  content: 'Remover' !important;
+  color: #ff5252 !important;
 }
 </style>

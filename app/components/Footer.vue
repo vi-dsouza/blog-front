@@ -6,9 +6,9 @@
         
         <v-col cols="12" md="4" class="fonte text-center mb-4 mb-md-0">
           <p class="footer-title">Política de Privacidade</p>
-          <a href="/TermosCondicoes" target="_blank" rel="noopener noreferrer" class="fonte footer-link">
+          <NuxtLink to="/TermosCondicoes" class="fonte footer-link">
             Termos e Condições
-          </a>
+          </NuxtLink>
         </v-col>
 
         <v-col cols="12" md="4" class="fonte text-center mb-4 mb-md-0">

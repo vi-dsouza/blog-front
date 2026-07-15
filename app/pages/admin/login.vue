@@ -42,11 +42,12 @@
 </template>
 
 <script setup>
+const runtimeConfig = useRuntimeConfig()
+const apiBase = runtimeConfig.public.apiBase
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
-
 const cooldownSeconds = ref(0)
 const timerInterval = ref(null)
 const isButtonDisabled = computed(() => loading.value || cooldownSeconds.value > 0)
@@ -81,7 +82,7 @@ async function handleLogin() {
   errorMsg.value = ''
 
   try {
-    const data = await $fetch('http://localhost:5000/auth/login', {
+    const data = await $fetch(`${apiBase}/auth/login`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -101,7 +102,7 @@ async function handleLogin() {
       user.value = {
         nome: data.user_nome,
         foto_url: data.user_foto
-          ? `http://localhost:5000/uploads/${data.user_foto}`
+          ? `${apiBase}/uploads/${data.user_foto}`
           : '/smirk.png'
       }
 

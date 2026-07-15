@@ -10,11 +10,13 @@ interface InscritoForm {
 }
 
 export const useInscritosStore = defineStore("inscritos", () => {
+    const runtimeConfig = useRuntimeConfig()
+    const apiBase = runtimeConfig.public.apiBase
     const carregando = ref<boolean>(false)
     const erro = ref<string | null>(null)
     const sucesso = ref<boolean>(false)
 
-    const API_URL = "http://localhost:5000/insc"
+    const API_URL = `${apiBase}/insc`
 
     async function realizarInscricao(dados: InscritoForm) {
         carregando.value = true
@@ -83,7 +85,7 @@ export const useInscritosStore = defineStore("inscritos", () => {
     async function contar_inscritos() {
         carregando.value = true;
         try {
-            const response = await axios.get('http://localhost:5000/insc/qtd_inscritos');
+            const response = await axios.get(`${API_URL}/qtd_inscritos`);
             return response.data;
         } finally {
             carregando.value = false;

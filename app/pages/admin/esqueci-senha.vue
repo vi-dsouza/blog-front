@@ -41,6 +41,9 @@
 </template>
 
 <script setup>
+
+const runtimeConfig = useRuntimeConfig()
+const apiBase = runtimeConfig.public.apiBase
 const email = ref('')
 const loading = ref(false)
 const mensagem = ref('')
@@ -48,7 +51,7 @@ const mensagem = ref('')
 async function enviarEmail() {
   loading.value = true
   try {
-    await $fetch('http://localhost:5000/auth/esqueci-senha', {
+    await $fetch(`${apiBase}/auth/esqueci-senha`, {
       method: 'POST',
       body: { email: email.value }
     })

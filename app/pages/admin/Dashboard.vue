@@ -103,6 +103,8 @@ import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Li
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
+const runtimeConfig = useRuntimeConfig()
+const apiBase = runtimeConfig.public.apiBase
 const postsStore = usePostagemStore();
 const qtdIncritos = useInscritosStore();
 const totalPosts = ref<number | string>(0);
@@ -145,7 +147,7 @@ const chartOptions = {
 
 async function carregarDadosDashboard() {
   try {
-    const resposta = await fetch('http://localhost:5000/dashboard/dashboard/visao-geral');
+    const resposta = await fetch(`${apiBase}/dashboard/dashboard/visao-geral`);
     const dados = await resposta.json();
 
     if (resposta.ok) {

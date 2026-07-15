@@ -8,7 +8,7 @@ interface AdminRegister {
     senha?: string;
     is_admin: boolean;
     biografia: string;
-    foto: File | null;
+    foto?: File | null;
 }
 
 const getHeaders = () => {
@@ -21,6 +21,8 @@ const getHeaders = () => {
 }
 
 export const useAdminStore = defineStore('admin', () => {
+    const runtimeConfig = useRuntimeConfig()
+    const apiBase = runtimeConfig.public.apiBase
     const loading = ref(false)
     const error = ref<string | null>(null);
     const admin = ref<any[]>([])
@@ -40,14 +42,12 @@ export const useAdminStore = defineStore('admin', () => {
         if (payload.foto) formData.append('foto', payload.foto)
 
         try {
-            // Removido o header manual para o Axios configurar o boundary automaticamente
-            const response = await axios.post('http://localhost:5000/auth/register', formData, getHeaders());
+            const response = await axios.post(`${apiBase}/auth/register`, formData, getHeaders());
             return response.data
         } catch (err: any) {
-            // Correção do erro de digitação: .response
             const mensagemErro = err.response?.data?.message || 'Erro ao cadastrar administrador!';
             error.value = mensagemErro;
-            console.error("Erro na API:", err.response?.data); // Para você ver o log real no console
+            console.error("Erro na API:", err.response?.data);
             throw err
         } finally {
             loading.value = false
@@ -59,7 +59,7 @@ export const useAdminStore = defineStore('admin', () => {
         error.value = null
 
         try {
-            const response = await axios.get('http://localhost:5000/auth/admins', getHeaders());
+            const response = await axios.get(`${apiBase}/auth/admins`, getHeaders());
             admin.value = response.data
         } catch (err: any) {
             error.value = err.response?.data?.message || 'Erro ao buscar admins!'
@@ -73,7 +73,7 @@ export const useAdminStore = defineStore('admin', () => {
         error.value = null
 
         try {
-            const response = await axios.get('http://localhost:5000/auth/autores', getHeaders());
+            const response = await axios.get(`${apiBase}/auth/autores`, getHeaders());
             autor.value = response.data  
         } catch (err: any) {
             error.value = err.response?.data?.message || 'Erro ao buscar info do autor!'
@@ -87,7 +87,7 @@ export const useAdminStore = defineStore('admin', () => {
         error.value = null
 
         try {
-            await axios.delete(`http://localhost:5000/auth/admin/del/${id}`, getHeaders())
+            await axios.delete(`${apiBase}/auth/admin/del/${id}`, getHeaders())
             
             admin.value = admin.value.filter(a => a.id !== id)
         } catch (err: any) {
@@ -117,7 +117,7 @@ export const useAdminStore = defineStore('admin', () => {
                 formData.append('foto', ''); 
             }
 
-            const response = await axios.put(`http://localhost:5000/auth/admin/edit/${id}`, formData, getHeaders());
+            const response = await axios.put(`${apiBase}/auth/admin/edit/${id}`, formData, getHeaders());
 
             await busca_admins(); 
             return response.data;
