@@ -20,7 +20,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: 'http://localhost:5000'
+      apiBase: 'https://blog-back-u2m0.onrender.com'
     }
   }
 })
