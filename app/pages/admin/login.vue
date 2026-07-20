@@ -99,11 +99,13 @@ async function handleLogin() {
       token.value = data.token
 
       const user = useCookie('user', { maxAge: 7200, sameSite: 'lax' })
+      
       user.value = {
         nome: data.user_nome,
-        foto_url: data.user_foto
-          ? `${apiBase}/uploads/${data.user_foto}`
-          : '/smirk.png'
+        foto_url: data.user_foto || null
+        // foto_url: data.user_foto
+        //   ? `${apiBase}/uploads/${data.user_foto}`
+        //   : '/smirk.png'
       }
 
       await navigateTo('/admin/dashboard')

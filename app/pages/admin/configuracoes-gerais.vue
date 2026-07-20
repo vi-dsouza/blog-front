@@ -184,10 +184,15 @@ const carregarDadosIniciais = async () => {
         tags_selecionadas.value = dados.tags_do_blog ? dados.tags_do_blog.split(',') : [];
 
         if (dados.banner_url) {
-            urlPreview.value = `${apiBase}/config_blog/${dados.banner_url}`;
+          urlPreview.value = dados.banner_url;
         } else {
-            urlPreview.value = null;
+          urlPreview.value = null;
         }
+        // if (dados.banner_url) {
+        //     urlPreview.value = `${apiBase}/config_blog/${dados.banner_url}`;
+        // } else {
+        //     urlPreview.value = null;
+        // }
     }
 }
 
