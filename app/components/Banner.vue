@@ -25,7 +25,8 @@ const loadBanner = async () => {
   const dados = await configStore.carregarConfigPublico()
 
   if (dados?.banner_url) {
-    bannerUrl.value = `${apiBase}/config_blog/${dados.banner_url}`
+    // bannerUrl.value = `${apiBase}/config_blog/${dados.banner_url}`
+    bannerUrl.value = dados.banner_url
   }
 }
 
