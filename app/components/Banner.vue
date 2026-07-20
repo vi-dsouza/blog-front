@@ -36,19 +36,22 @@ onMounted(loadBanner)
 <style scoped>
 .banner-image {
   width: 100%;
-  max-width: 100%;
   aspect-ratio: 16 / 5;
+  max-height: 400px;
+  object-fit: cover;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 960px) and (min-width: 601px) {
   .banner-image {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 7;
+    max-height: 320px;
   }
 }
 
 @media (max-width: 600px) {
   .banner-image {
-    aspect-ratio: 3 / 1;
+    aspect-ratio: 16 / 9;
+    max-height: 250px;
   }
 }
 </style>
