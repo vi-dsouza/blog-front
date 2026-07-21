@@ -94,22 +94,43 @@ async function handleLogin() {
       }
     })
 
+    // if (data?.token) {
+    //   const token = useCookie('auth_token', { maxAge: 7200, sameSite: 'lax' })
+    //   token.value = data.token
+
+    //   const user = useCookie('user', { maxAge: 7200, sameSite: 'lax' })
+      
+    //   user.value = {
+    //     nome: data.user_nome,
+    //     foto_url: data.user_foto || null
+    //     // foto_url: data.user_foto
+    //     //   ? `${apiBase}/uploads/${data.user_foto}`
+    //     //   : '/smirk.png'
+    //   }
+
+    //   await navigateTo('/admin/dashboard')
+    // }
+
     if (data?.token) {
       const token = useCookie('auth_token', { maxAge: 7200, sameSite: 'lax' })
       token.value = data.token
 
-      const user = useCookie('user', { maxAge: 7200, sameSite: 'lax' })
-      
-      user.value = {
-        nome: data.user_nome,
-        foto_url: data.user_foto || null
-        // foto_url: data.user_foto
-        //   ? `${apiBase}/uploads/${data.user_foto}`
-        //   : '/smirk.png'
+      let fotoTratada = data.user_foto || null
+      if (fotoTratada && !fotoTratada.startsWith('data:image') && !fotoTratada.startsWith('http')) {
+        fotoTratada = `data:image/png;base64,${fotoTratada}`
       }
+
+      const usuarioObj = {
+        id: data.user_id || data.id,
+        nome: data.user_nome || data.nome || 'Administrador',
+        foto_url: fotoTratada
+      }
+
+      localStorage.setItem('user_data', JSON.stringify(usuarioObj))
 
       await navigateTo('/admin/dashboard')
     }
+
   } catch (err) {
     const serverError =
       err?.data ||

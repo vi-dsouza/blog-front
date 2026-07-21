@@ -17,21 +17,23 @@
               </v-btn>
 
               <ModalCadastroUsuario v-model="cadastroAdmin">
-                <div class="d-flex flex-column" style="height: 75vh; max-height: 600px; min-height: 0;">
+                <div class="d-flex flex-column">
 
-                  <div class="d-flex justify-space-between align-center mb-4 flex-shrink-0">
+                  <!-- Cabeçalho do Modal -->
+                  <div class="d-flex justify-space-between align-center mb-4">
                     <div>
-                      <h2 class="fonte text-h5 font-weight-bold">
+                      <h2 class="fonte text-h5 font-weight-bold text-black">
                         {{ idSelecionado ? 'Editar Administrador' : 'Cadastrar Administrador' }}
                       </h2>
-                      <p class="fonte text-caption text-grey mb-0">
+                      <p class="fonte text-caption text-grey-darken-1 mb-0">
                         {{ idSelecionado ? 'Altere os dados do administrador' : 'Preencha as informações para criar um novo usuário' }}
                       </p>
                     </div>
-                    <v-btn icon="mdi-close" variant="text" @click="fecharModal" />
+                    <v-btn icon="mdi-close" variant="text" color="grey-darken-2" @click="fecharModal" />
                   </div>
 
-                  <div class="flex-grow-1 overflow-y-auto pe-2" style="min-height: 0;">
+                  <!-- Conteúdo do Formulário -->
+                  <div class="pe-1">
                     <v-row>
                       <v-col cols="12" sm="5" md="4" class="d-flex justify-center align-start">
                         <v-sheet
@@ -49,7 +51,7 @@
                             mdi-cloud-upload-outline
                           </v-icon>
 
-                          <span class="fonte text-caption font-weight-medium text-center px-2">
+                          <span class="fonte text-caption font-weight-medium text-center text-black px-2">
                             Clique para enviar a foto
                           </span>
 
@@ -86,7 +88,7 @@
                           v-model="form.nome"
                           variant="outlined"
                           density="compact"
-                          class="fonte mb-3"
+                          class="fonte mb-1"
                           prepend-inner-icon="mdi-account"
                         />
 
@@ -95,7 +97,7 @@
                           v-model="form.email"
                           variant="outlined"
                           density="compact"
-                          class="fonte mb-3"
+                          class="fonte mb-1"
                           prepend-inner-icon="mdi-email"
                         />
 
@@ -135,8 +137,9 @@
                     </v-row>
                   </div>
 
-                  <div class="fonte d-flex justify-end gap-3 pt-4 border-top flex-shrink-0">
-                    <v-btn variant="text" @click="fecharModal">
+                  <!-- Rodapé de Ações -->
+                  <div class="fonte d-flex justify-end gap-3 pt-4 border-top">
+                    <v-btn variant="text" color="grey-darken-2" @click="fecharModal">
                       Cancelar
                     </v-btn>
 
@@ -247,15 +250,38 @@ const handleSalvar = async () => {
     const dados = { ...form.value, foto: arquivoFinal };
 
     if (idSelecionado.value) {
-      await adminStore.atualizarAdmin(idSelecionado.value, dados);
+      const resposta = await adminStore.atualizarAdmin(idSelecionado.value, dados);
+      
       alertStore.showSuccess('Atualizado com sucesso');
+
+      if (import.meta.client) {
+        const usuarioSalvo = JSON.parse(localStorage.getItem('user_data') || '{}');
+
+        if (usuarioSalvo && usuarioSalvo.id === idSelecionado.value) {
+          usuarioSalvo.nome = form.value.nome;
+          
+          if (urlPreview.value) {
+            usuarioSalvo.foto_url = urlPreview.value;
+          } else if (resposta?.foto_url) {
+            usuarioSalvo.foto_url = resposta.foto_url;
+          }
+
+          localStorage.setItem('user_data', JSON.stringify(usuarioSalvo));
+
+          window.dispatchEvent(new Event('user-data-updated'));
+        }
+      }
     } else {
       await adminStore.registrarAdmin(dados);
       alertStore.showSuccess('Cadastrado com sucesso');
     }
 
     await adminStore.busca_admins();
-    fecharModal();
+
+    setTimeout(() => {
+      fecharModal();
+    }, 300);
+
   } catch (e) {
     alertStore.showError('Erro na operação');
   }

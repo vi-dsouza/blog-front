@@ -12,7 +12,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       defaultTheme: 'light',
       themes: {
         entreIdeiasTheme: {
-          // dark: true, 
+          dark: true, 
           colors: {
             background: '#ffffff',
             // background: '#1F1A1B',
