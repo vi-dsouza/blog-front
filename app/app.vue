@@ -15,7 +15,7 @@ html, body {
   forced-color-adjust: none;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   html {
     color-scheme: light;
   }
