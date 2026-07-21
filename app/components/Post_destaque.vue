@@ -6,7 +6,7 @@
     @click="irParaPost(postDestaque)"
   >
     <v-row class="ma-0" no-gutters>
-      <v-col cols="12" md="4" class="pa-0">
+      <v-col cols="12" md="5" class="pa-0">
         <v-img
           :src="postDestaque?.post_url || '/placeholder.png'"
           class="h-md-100"
@@ -16,7 +16,7 @@
         />
       </v-col>
 
-      <v-col cols="12" md="8" class="pa-4 pa-sm-6 d-flex flex-column justify-space-between">
+      <v-col cols="12" md="7" class="pa-3 pa-sm-4 d-flex flex-column justify-space-between">
         <div>
           <v-chip size="small" class="fonte destaque-tag mb-2">
             Post em Destaque
@@ -41,12 +41,12 @@
             </v-chip>
           </div>
           
-          <p class="fonte destaque-excerpt text-body-2" style="display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; line-clamp: 4; overflow: hidden;"
+          <p class="fonte destaque-excerpt text-body-2" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; line-clamp: 4; overflow: hidden;"
             v-html="postDestaque?.conteudo || 'Aguarde enquanto buscamos o post mais recente para você.'">
           </p>
         </div>
 
-        <div class="d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between mt-6 gap-4">
+        <div class="d-flex flex-column flex-sm-row align-start align-sm-center justify-space-between mt-3 gap-2">
           <div class="d-flex align-center flex-wrap" style="gap: 8px;">
             <div class="d-flex align-center position-relative">
               <v-btn 
